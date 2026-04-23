@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>魔力スケール可視化 — ルクスマーレ王国基準（物理準拠版）</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2030;
+    --panel-2: #232b3d;
+    --text: #e8ecf5;
+    --text-dim: #9aa4bd;
+    --accent: #7cb5ff;
+    --accent-2: #c89dff;
+    --gold: #f2c94c;
+    --red: #ff7a7a;
+    --green: #7dd89e;
+    --border: #2d3850;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  header {
+    background: linear-gradient(135deg, #1a1040 0%, #0f2a4d 100%);
+    padding: 40px 24px;
+    border-bottom: 2px solid var(--accent);
+  }
+  header .wrap { padding: 0 24px; }
+  h1 {
+    font-size: 32px; margin: 0 0 8px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: var(--text-dim); font-size: 15px; }
+  h2 {
+    font-size: 22px; margin: 48px 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    color: var(--accent);
+  }
+  h3 { font-size: 17px; margin: 24px 0 12px; color: var(--accent-2); }
+  p { margin: 8px 0; }
+  .note {
+    font-size: 13px; color: var(--text-dim);
+    background: var(--panel-2); padding: 12px 16px;
+    border-left: 3px solid var(--accent); border-radius: 4px;
+    margin: 12px 0;
+  }
+  .note.phys {
+    border-left-color: var(--accent-2);
+    background: linear-gradient(135deg, rgba(200,157,255,0.08), var(--panel-2));
+  }
+  .note.warn { border-left-color: var(--red); }
+  .note.good { border-left-color: var(--green); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* Formula display */
+  .formula {
+    display: inline-block;
+    background: rgba(124,181,255,0.08);
+    border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px; color: var(--accent);
+  }
+  .def-box {
+    background: linear-gradient(135deg, rgba(124,181,255,0.12), rgba(200,157,255,0.08));
+    border: 2px solid var(--accent);
+    padding: 20px 24px; border-radius: 8px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .def-box .mu-def {
+    font-size: 28px; font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 8px 0;
+  }
+  .def-box .mu-desc { font-size: 13px; color: var(--text-dim); }
+
+  /* MU bar chart */
+  .scale-chart { background: var(--panel); padding: 20px; border-radius: 8px; margin: 16px 0; }
+  .scale-row {
+    display: grid; grid-template-columns: 200px 1fr 140px;
+    align-items: center; gap: 12px; padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .scale-row:last-child { border-bottom: none; }
+  .scale-label { font-size: 14px; }
+  .scale-label strong { color: var(--text); display: block; }
+  .scale-label span { color: var(--text-dim); font-size: 12px; }
+  .bar-track {
+    height: 22px; background: #0a0e18;
+    border-radius: 4px; position: relative; overflow: hidden;
+  }
+  .bar {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 8px; color: #fff; font-size: 11px; font-weight: 600;
+    min-width: 2px; transition: width 0.5s;
+  }
+  .bar.muraw { background: linear-gradient(90deg, #7a7a7a, #bbb); }
+  .bar.monster { background: linear-gradient(90deg, #c0504d, #e5846d); }
+  .bar.gold { background: linear-gradient(90deg, #d4a017, var(--gold)); }
+  .bar-gender-marker {
+    position: absolute; top: 0; bottom: 0;
+    width: 2px; background: rgba(255,255,255,0.6);
+    pointer-events: none;
+  }
+  .bar-gender-marker::after {
+    content: "♂"; position: absolute; top: -14px;
+    transform: translateX(-50%); font-size: 10px; color: var(--text-dim);
+  }
+  .mu-value { font-size: 13px; color: var(--text-dim); text-align: right; font-variant-numeric: tabular-nums; }
+  .scale-axis {
+    display: grid; grid-template-columns: 200px 1fr 140px; gap: 12px;
+    margin-top: 8px; font-size: 11px; color: var(--text-dim);
+  }
+  .axis-ticks { position: relative; height: 20px; }
+  .axis-ticks span {
+    position: absolute; transform: translateX(-50%);
+    padding-top: 4px; border-left: 1px solid var(--border);
+    padding-left: 4px;
+  }
+
+  /* Card layout */
+  .cards-4 {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width: 900px) { .cards-4 { grid-template-columns: repeat(2, 1fr); } }
+  .card {
+    background: var(--panel); padding: 18px; border-radius: 8px;
+    border-top: 3px solid var(--accent);
+    display: flex; flex-direction: column;
+  }
+  .card.tier1 { border-top-color: var(--green); }
+  .card.tier2 { border-top-color: var(--accent); }
+  .card.tier3 { border-top-color: var(--gold); }
+  .card.tier4 { border-top-color: var(--red); }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-range {
+    font-size: 22px; font-weight: 700; margin: 6px 0;
+    color: var(--accent);
+  }
+  .card.tier1 .card-range { color: var(--green); }
+  .card.tier3 .card-range { color: var(--gold); }
+  .card.tier4 .card-range { color: var(--red); }
+  .card-desc { font-size: 13px; color: var(--text-dim); margin-top: auto; }
+
+  /* Standard table */
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--panel); border-radius: 8px; overflow: hidden;
+    margin: 12px 0; font-size: 14px;
+  }
+  th {
+    background: var(--panel-2); color: var(--accent);
+    text-align: left; padding: 10px 14px;
+    font-weight: 600; font-size: 13px;
+  }
+  td { padding: 9px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  td.phys { color: var(--accent-2); font-size: 12px; font-family: "SFMono-Regular", Consolas, monospace; }
+  tr.highlight { background: rgba(124,181,255,0.08); }
+  tr.danger { background: rgba(255,122,122,0.08); }
+
+  /* Comparison block */
+  .compare-block {
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+    padding: 20px; border-radius: 8px; margin: 16px 0;
+  }
+  .compare-head {
+    font-size: 14px; color: var(--text-dim); margin-bottom: 8px;
+  }
+  .compare-stat {
+    font-size: 28px; font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .compare-stat small { font-size: 14px; font-weight: 400; color: var(--text-dim); }
+
+  /* Barrier section */
+  .barrier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 720px) { .barrier-grid { grid-template-columns: 1fr; } }
+  .barrier-card {
+    background: var(--panel); border-radius: 8px; padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .barrier-card.emergency { border: 2px solid var(--red); }
+  .barrier-card.peacetime { border: 2px solid var(--green); }
+  .barrier-card h4 {
+    margin: 0 0 12px; font-size: 16px;
+  }
+  .barrier-card .big-num {
+    font-size: 32px; font-weight: 700; margin: 8px 0;
+  }
+  .emergency .big-num { color: var(--red); }
+  .peacetime .big-num { color: var(--green); }
+
+  footer {
+    margin-top: 64px; padding: 24px; text-align: center;
+    color: var(--text-dim); font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .legend-row {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 13px; color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .legend-row span { display: flex; align-items: center; gap: 6px; }
+  .legend-row i {
+    display: inline-block; width: 14px; height: 14px; border-radius: 3px;
+  }
+  .toc {
+    background: var(--panel-2); padding: 12px 16px; border-radius: 6px;
+    margin: 16px 0; font-size: 13px;
+    border: 1px solid var(--border);
+  }
+  .toc a {
+    display: inline-block; color: var(--accent); text-decoration: none;
+    padding: 2px 8px; margin: 2px 2px;
+    border-radius: 3px; background: rgba(124,181,255,0.08);
+  }
+  .toc a:hover { background: rgba(124,181,255,0.18); }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 10px; background: var(--panel-2); color: var(--accent-2);
+    border: 1px solid var(--border); margin-left: 6px;
+  }
+  .badge.phys { background: rgba(200,157,255,0.15); color: var(--accent-2); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>魔力スケール可視化 <span class="badge phys">物理準拠版 v2</span></h1>
+    <div class="subtitle">東の国（ルクスマーレ王国）基準 ／ 1 MU = 1 kJ（キロジュール）の統一エネルギー単位</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="def-box">
+  <div class="subtitle">MU（Magic Unit）の定義</div>
+  <div class="mu-def">1 MU ＝ 1 kJ ＝ 1000 J</div>
+  <div class="mu-desc">
+    物理エネルギーと直接対応。すべての魔法コストは運動エネルギー (1/2)Mv²・熱エネルギー mcΔT・相転移 mL・化学結合エネルギー・破壊仕事量の物理式から算出される。
+  </div>
+</div>
+
+<div class="note phys">
+  <strong>旧定義からの改訂：</strong>
+  旧単位「6歳児・段階4反応の火灯の術1回 = 1 MU」は直感的基準として機能してきたが、物理整合性のため撤廃。
+  旧定義の「火灯の術1回」は新単位系では <strong>0.01〜0.05 MU</strong>（薪・芯部の局所加熱分のみ）に相当する。
+  魔力検査の段階表現（段階4 = 基礎的な火起こしが可能）は<strong>定性記述として維持</strong>する。
+</div>
+
+<div class="toc">
+  <strong>目次：</strong>
+  <a href="#s1">① 人間の総魔力量</a>
+  <a href="#s2">② 成長倍率（×20〜50則）</a>
+  <a href="#s3">③ 魔物ランク別</a>
+  <a href="#s4">④ 人間vs魔物</a>
+  <a href="#s5">⑤ 1日の使用量4段階</a>
+  <a href="#s6">⑥ 魔法行為の消費（物理準拠）</a>
+  <a href="#s7">⑦ 個人防御（魔防壁）</a>
+  <a href="#s8">⑧ 産業・生活</a>
+  <a href="#s10">⑩ 魔石容量≠戦闘力</a>
+  <a href="#s11">⑪ 特殊系魔法</a>
+  <a href="#s13">⑬ 充電労働市場</a>
+  <a href="#s14">⑭ 整合チェック</a>
+</div>
+
+<h2 id="s1">① 人間の総魔力量スケール</h2>
+<p>対数スケール（10倍刻み）で並べると、無魔人から王族までの<strong>桁違いの差</strong>が一目で分かる。女性は副魔石で男性の約2倍（思春期以降に本格成長）。</p>
+
+<div class="scale-chart" id="human-chart">
+  <div class="legend-row">
+    <span><i style="background: linear-gradient(90deg,#7a7a7a,#bbb)"></i>無魔人</span>
+    <span><i style="background: linear-gradient(90deg,var(--accent),var(--accent-2))"></i>魔石持ち</span>
+    <span><i style="background: rgba(255,255,255,0.6); width:2px;"></i>♂マーカー＝男性上限（そこから右が女性のレンジ）</span>
+    <span>横軸は対数スケール（MU = kJ）</span>
+  </div>
+</div>
+
+<div class="compare-block">
+  <div class="compare-head">無魔人男性下限（大人・20 MU = 20 kJ。無魔人は男20〜50 / 女40〜100 MU）と高位王族女性（1,000万 MU = 10 GJ）の差</div>
+  <div class="compare-stat">約 50万倍 <small>／ 魔石一つ持っているかどうかで、世界の見え方が変わる理由</small></div>
+</div>
+
+<h2 id="s2">② 成長倍率のルール（×20〜50則）</h2>
+<p>6歳児の検査値と大人の総魔力量の関係は、<strong>検査段階に関わらず成人時点で約20〜50倍に成長する</strong>という経験則がある。副魔石・主魔石の成長が思春期以降に本格化する物理的結果。</p>
+
+<table>
+  <thead>
+    <tr><th>6歳の検査反応</th><th>6歳時点の魔力量</th><th>成人男性の標準範囲</th><th>倍率</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>段階4（平民魔石持ちの中央）</td><td class="num">100 MU</td><td class="num">2,000〜5,000 MU（平民）</td><td class="num">×20〜50</td></tr>
+    <tr><td>段階5</td><td class="num">300 MU</td><td class="num">6,000〜15,000 MU</td><td class="num">×20〜50</td></tr>
+    <tr><td>段階6（下級貴族相当）</td><td class="num">1,000 MU</td><td class="num">20,000〜50,000 MU（中級騎士）</td><td class="num">×20〜50</td></tr>
+    <tr><td>段階7</td><td class="num">3,000 MU</td><td class="num">60,000〜150,000 MU</td><td class="num">×20〜50</td></tr>
+    <tr><td>段階8（上級貴族相当）</td><td class="num">10,000 MU</td><td class="num">200,000〜500,000 MU（上級貴族）</td><td class="num">×20〜50</td></tr>
+    <tr><td>段階9以上</td><td class="num">30,000 MU〜</td><td class="num">数百万 MU（公爵・王族）</td><td class="num">×20〜50</td></tr>
+  </tbody>
+</table>
+<div class="note">女性はさらに副魔石の本格成長で男性の2倍に到達する。</div>
+
+<h2 id="s3">③ 魔物ランク別 魔石貯蔵量</h2>
+<p>各ランク間は<strong>約10倍刻み</strong>。A級魔物1体の魔石で、公爵級10人分の魔力が貯蔵されている。</p>
+
+<div class="scale-chart" id="monster-chart">
+  <div class="legend-row">
+    <span><i style="background: linear-gradient(90deg,#c0504d,#e5846d)"></i>魔物ランク（F 〜 SSS）</span>
+    <span>SSS（古代竜）は「推定不能」のため参考値として表示</span>
+  </div>
+</div>
+
+<h2 id="s4">④ 人間と魔物の対応</h2>
+<p>魔物ランクは人間の階層とほぼ一致する設計になっている。討伐難易度の目安。</p>
+<div class="note" style="border-left-color: var(--text-dim); font-size:12px;">
+  ※表の人間側は<strong>男性下限基準の「純粋魔力収支」</strong>。実戦では武具・戦術・連携で魔力差10〜30倍を補えるため、「1人＝1体で必ず倒せる」ことは意味しない（詳細は <a href="#s10">⑩ 魔石容量 ≠ 戦闘力</a>）。
+</div>
+
+<div class="scale-chart" id="compare-chart"></div>
+
+<h2 id="s5">⑤ 1日あたりの使用量の4段階</h2>
+<p>魔力は<strong>一晩の睡眠でほぼ全回復</strong>するため、「1日に何%使えるか」ではなく「どの強度で使うとどんな負荷か」で捉える。</p>
+
+<div class="cards-4">
+  <div class="card tier1">
+    <div class="card-title">日常労働（持続可能ペース）</div>
+    <div class="card-range">5〜15%</div>
+    <div class="card-desc">疲労感なし。連日年単位で続けられる。<br>術式石の充電業・生活魔法・家事</div>
+  </div>
+  <div class="card tier2">
+    <div class="card-title">通常戦闘・集中訓練</div>
+    <div class="card-range">30〜60%</div>
+    <div class="card-desc">夜には疲労・頭痛が残るが睡眠で回復。<br>騎士の日常任務・模擬戦</div>
+  </div>
+  <div class="card tier3">
+    <div class="card-title">全力運用</div>
+    <div class="card-range">80〜100%</div>
+    <div class="card-desc">酷使の症状（頭痛・発熱）が出る。<br>スタンピード防衛・緊急事態限定</div>
+  </div>
+  <div class="card tier4">
+    <div class="card-title">枯渇後の酷使</div>
+    <div class="card-range">100%超</div>
+    <div class="card-desc">主魔石にひびが入る。<br>戦場の極限でのみ</div>
+  </div>
+</div>
+
+<h2 id="s6">⑥ 魔法行為の消費量（物理準拠・再較正済み） <span class="badge phys">1 MU = 1 kJ</span></h2>
+<p>すべての行為を物理エネルギー式から算定した。火の魔法は「着火」と「焼殺」で3桁以上差が出る。</p>
+
+<table>
+  <thead>
+    <tr><th>行為</th><th>物理根拠</th><th>消費</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>火灯の術（ろうそく点火）</td><td class="phys">芯部局所加熱 約10〜50 J</td><td class="num">0.01〜0.05 MU</td></tr>
+    <tr><td>薪への点火</td><td class="phys">木材局所加熱＋着火 約100 J</td><td class="num">0.1 MU</td></tr>
+    <tr><td>旧「ファイアボール」相当（衣服着火）</td><td class="phys">数 g 布への点火</td><td class="num">0.01 MU</td></tr>
+    <tr><td>石礫投擲（1 kg × 30 m/s、致死級）</td><td class="phys">(1/2)×1×900＋制御×2</td><td class="num">1 MU</td></tr>
+    <tr><td>エアカッター（中型）</td><td class="phys">空気塊 2 kg × 50 m/s ＋ 制御</td><td class="num">5〜10 MU</td></tr>
+    <tr><td>弩級岩石投擲（10 kg × 30 m/s）</td><td class="phys">(1/2)×10×900＋制御×2</td><td class="num">9 MU</td></tr>
+    <tr><td>水 1 L の沸騰</td><td class="phys">mcΔT（4.18×1×80）</td><td class="num">335 MU</td></tr>
+    <tr><td>氷の槍（1 kg 氷を形成＋射出）</td><td class="phys">潜熱 334＋KE 0.5＋制御</td><td class="num">350 MU</td></tr>
+    <tr class="highlight"><td>火魔法の戦闘不能化（重度熱傷）</td><td class="phys">人体表皮層 2 kg×3,500×170 K</td><td class="num"><strong>1,200 MU</strong></td></tr>
+    <tr><td>鍛冶の加熱維持（1時間）</td><td class="phys">連続顕熱供給 約2 MJ</td><td class="num">2,000 MU</td></tr>
+    <tr class="danger"><td>旧「ファイアボール」相当（焼殺級）</td><td class="phys">60 kg 人体表皮層 2 kg×3,500×400 K</td><td class="num"><strong>2,800 MU</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="note warn">
+  <strong>「火魔法は万能ではない」の物理根拠：</strong>
+  衣服着火（0.01 MU）と焼殺（2,800 MU）で<strong>28万倍の差</strong>。人体を焼き殺すには平民の総魔力量を大きく超える物理エネルギーが必要であり、
+  戦場では「着火して動きを止める」「呼吸を妨害する」など低コスト活用が基本となる。
+</div>
+
+<h2 id="s7">⑦ 個人防御（魔防壁）</h2>
+<p>個人防御は[[強化系魔法]]の魔防壁で実現する。運動量相殺・エネルギー吸収ベース。矢1本の運動エネルギーは約50〜100 J（＝0.05〜0.1 MU）の吸収で相殺できる。<br>
+城塞・都市の防衛は物理構造物（城壁・門・閂）で行う。魔法的な常設結界は存在しない。</p>
+
+<table>
+  <thead>
+    <tr><th>行為</th><th>物理根拠</th><th>消費</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>密着型魔防壁・軽（1時間）</td><td class="phys">日常擦過傷相当の運動量相殺</td><td class="num">15〜30 MU</td></tr>
+    <tr><td>密着型魔防壁・中（1時間）</td><td class="phys">矢・刃を弾く（50〜100 J/回 ×十回強）</td><td class="num">60〜100 MU</td></tr>
+    <tr><td>密着型魔防壁・厚（1時間）</td><td class="phys">非強化刃ほぼ通らず・魔法銃通常弾軽減</td><td class="num">150〜250 MU</td></tr>
+    <tr><td>拡張型・小型盾型（1時間）</td><td class="phys">前方0.5m四方、矢・斬撃を方向限定で弾く</td><td class="num">80〜150 MU</td></tr>
+    <tr><td>拡張型・中型遮蔽壁（1時間）</td><td class="phys">前方2m四方、爆風・大型魔物の一撃軽減</td><td class="num">400〜800 MU</td></tr>
+    <tr><td>拡張型・翼型（飛行用、1時間）</td><td class="phys">両肩から翼面展開、揚力面として機能</td><td class="num">500〜1,500 MU</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s8">⑧ 産業・生活の魔力消費</h2>
+<p>鍛造や溶融は物理的に大量の熱量を要する。平民単独では不可能で、上級職人（数万 MU保有）または燃料（薪・炭）の化学エネルギーを活用する必要がある。これが<strong>「火魔法使いが鍛冶を独占する」設定の物理的根拠</strong>。</p>
+
+<table>
+  <thead>
+    <tr><th>行為</th><th>物理根拠</th><th>消費</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>鍛冶場通風石（1日）</td><td class="phys">通風持続</td><td class="num">100〜500 MU</td></tr>
+    <tr><td>村の浄化術式石（1日）</td><td class="phys">分離操作</td><td class="num">200〜1,000 MU</td></tr>
+    <tr><td>パン窯維持（200℃、1時間）</td><td class="phys">空気 2 m³ ＋ 放熱補填</td><td class="num">400〜800 MU</td></tr>
+    <tr><td>鉄 1 kg を鍛造温度（1,200℃）まで加熱</td><td class="phys">mcΔT（450×1×1180）</td><td class="num">530 MU</td></tr>
+    <tr><td>鉄 1 kg を溶融（潜熱含む）</td><td class="phys">顕熱 665 ＋ 潜熱 247</td><td class="num">912 MU</td></tr>
+    <tr><td>風呂沸（100 L を 20→40℃）</td><td class="phys">mcΔT</td><td class="num">8,370 MU</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s10">⑩ 魔石容量 ≠ 戦闘力</h2>
+<div class="note" style="border-left-color: var(--gold);">
+  人間の総魔力量・魔物の魔石貯蔵量は<strong>「所有魔力の最大量」</strong>であり、戦闘力そのものではない。
+  実戦の勝敗は <strong>技能 × 武具・術式石 × 戦術 × 魔物の身体能力</strong> の掛け算で決まる。<br>
+  「公爵級10人分 ＝ A級1体」は<strong>純粋な魔力収支の対応</strong>であり、「公爵10人で必ずA級1体を倒せる」ことを意味しない。
+  逆に平民魔石持ち（数千MU）でも<strong>武具と連携があればD級魔物（3万MU）を討伐可能</strong>（魔力差10倍を補う）。
+</div>
+
+<h2 id="s11">⑪ 特殊系魔法使い（スケール外）</h2>
+<div class="note" style="border-left-color: var(--accent-2);">
+  <strong>同調魔法・念写・念視・魔石記憶などの特殊系魔法使いは、本スケール表の延長線上に位置づけられない。</strong>
+  通常の4属性（土・水・火・風）では測れない系統外の魔法であり、魔力量そのものは通常の魔石持ちと同程度（平民〜貴族のどこにも出うる）だが、<strong>魔法の効果が魔力量に比例しない</strong>。
+  同調魔法は「共鳴・響き合い」で成立するため、1対1の対象が関わる魔法は数十〜数百 MU で成立する一方、対象がいなければ0 MUでも成立しない。念視・念写は「成功率」と「情報量」が主要な変数で、MU値は参考程度。<br>
+  主人公はこの系統に属するため、物語上は数値ではなく<strong>質的な描写</strong>で強さが示される。
+</div>
+
+<h2 id="s13">⑬ 持続可能ペースと充電労働市場</h2>
+<p>職業として長年続けるには総魔力量の<strong>5〜15%/日</strong>が標準。A級術式石満充電に4ヶ月〜1年かかる根拠。</p>
+
+<table>
+  <thead>
+    <tr><th>階層</th><th>総魔力量（男/女）</th><th>1日の充電量（男/女）</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>平民魔石持ち</td><td class="num">男 2,000〜5,000 / 女 4,000〜10,000 MU</td><td class="num">200〜750 / 400〜1,500 MU（F〜E級術式石1個相当）</td></tr>
+    <tr><td>下級貴族・中級騎士</td><td class="num">男 2〜5万 / 女 4〜10万 MU</td><td class="num">2,000〜7,500 / 4,000〜15,000 MU（D級術式石の一部）</td></tr>
+    <tr><td>上級貴族（充電師）</td><td class="num">男 20〜50万 / 女 40〜100万 MU</td><td class="num">2〜7.5万 / 4〜10万 MU（5万 MU/日はこの範囲内）</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s14">⑭ 既存設定との整合チェック</h2>
+<p>物理準拠化（1 MU = 1 kJ）後の整合性確認。<strong>既存の世界観を崩さずに物理式から再現できている</strong>ことが本改訂の成立条件。</p>
+
+<table>
+  <thead>
+    <tr><th>既存記述</th><th>物理準拠での再現</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>密着型魔防壁・中：1時間 60〜100 MU</td><td>矢50〜100 J×十数回＋制御＝60〜100 kJ = 同値 ✓</td></tr>
+    <tr><td>拡張型・中型遮蔽壁：1時間 400〜800 MU</td><td>爆風・大型魔物一撃軽減相当＝400〜800 kJ = 同値 ✓</td></tr>
+    <tr><td>翼型魔防壁（飛行用）：1時間 500〜1,500 MU</td><td>揚力面＋風魔法推進で巡航 700〜1,850 MU/h と整合 ✓</td></tr>
+    <tr><td>魔石持ちは人口の5〜8%</td><td>社会制度設定とは独立なので不変 ✓</td></tr>
+    <tr><td>大人下級貴族 = 中級騎士相当、20,000〜50,000 MU</td><td>20〜50 MJ の総エネルギー。ライフル弾7,000〜16,000発相当 ✓</td></tr>
+    <tr><td>旧「火灯の術 = 1 MU」</td><td>物理準拠で 0.01〜0.05 MU（微小加熱）に改訂。魔力検査の「段階」は定性表現として維持</td></tr>
+  </tbody>
+</table>
+
+<div class="note good">
+  <strong>結論：</strong>物理準拠化により、従来の世界観（魔石持ち5〜8%、大型魔道具の規模、騎士と魔物の階層対応）は<strong>全て同値または近似で維持</strong>された。
+  変更は主に「個別スペル1発あたりの消費値」の再較正（火灯の術: 1 MU → 0.01 MU、ファイアボール: 100〜300 MU → 2,800 MU）に限定される。
+</div>
+
+<footer>
+  出典：<code>設定資料/01_魔力システム/魔力スケール.md</code>（物理準拠版）<br>
+  関連：
+  <a href="../../01_魔力システム/物理コスト原理.md">物理コスト原理</a>
+  ／<a href="../../01_魔力システム/魔石の仕組み.md">魔石の仕組み</a>
+  ／<a href="../../01_魔力システム/魔力検査.md">魔力検査</a>
+  ／<a href="../../01_魔力システム/人間の魔力量.md">人間の魔力量</a>
+  ／<a href="../../01_魔力システム/消費とコスト.md">消費とコスト</a>
+  ／<a href="../../01_魔力システム/魔力分子とマーキング.md">魔力分子とマーキング</a>
+  ／<a href="../../02_魔石と術式/術式の仕組み.md">術式の仕組み</a>
+  ／<a href="../../02_魔石と術式/大型魔道具.md">大型魔道具</a>
+  ／<a href="../../04_生活魔法/強化系魔法.md">強化系魔法（魔防壁）</a>
+  ／<a href="../../11_魔物/魔物ランク表.md">魔物ランク表</a>
+</footer>
+
+</div>
+
+<script>
+// Log scale: 0.01 MU (火灯の術) から 3e10 MU (SSS参考値) まで
+const LOG_MIN = Math.log10(0.01);
+const LOG_MAX = Math.log10(3e10);
+const LOG_RANGE = LOG_MAX - LOG_MIN;
+
+function logPct(val) {
+  const p = (Math.log10(val) - LOG_MIN) / LOG_RANGE * 100;
+  return Math.max(1, Math.min(100, p));
+}
+function fmt(n) {
+  if (n >= 1e8) {
+    const oku = n / 1e8;
+    return (Number.isInteger(oku) ? oku.toLocaleString() : oku.toFixed(1)) + '億';
+  }
+  if (n >= 1e4) {
+    const man = n / 1e4;
+    return (Number.isInteger(man) ? man.toLocaleString() : man.toFixed(1)) + '万';
+  }
+  if (n < 1) {
+    return n.toString();
+  }
+  return n.toLocaleString();
+}
+
+// Human scale（MD表と一致・男女1行に集約）
+// 女性は副魔石で男性の約2倍。6歳時点では副魔石未成熟のため男女同値
+// val = 男下限（バー起点）、maleMax = 男上限（♂マーカー位置）、max = 女上限（バー終点）
+const humanData = [
+  { label: "無魔人（大人）", note: "男 20〜50 / 女 40〜100 MU｜副魔石なし", val: 20, maleMax: 50, max: 100, cls: "muraw" },
+  { label: "6歳児・魔石持ち（段階4）", note: "男女同値 100 MU｜段階4基準値（副魔石未成熟）", val: 100, max: 100, cls: "" },
+  { label: "6歳児・魔石持ち（段階6）", note: "男女同値 1,000 MU｜6歳で大人下級貴族相当（副魔石未成熟）", val: 1000, max: 1000, cls: "" },
+  { label: "魔石持ち平民・大人", note: "男 2,000〜5,000 / 女 4,000〜10,000 MU｜国民の中央値", val: 2000, maleMax: 5000, max: 10000, cls: "" },
+  { label: "中級騎士・下級貴族", note: "男 2〜5万 / 女 4〜10万 MU｜C級魔物を捌ける", val: 20000, maleMax: 50000, max: 100000, cls: "" },
+  { label: "上級貴族", note: "男 20〜50万 / 女 40〜100万 MU｜B級単独討伐ライン", val: 200000, maleMax: 500000, max: 1000000, cls: "" },
+  { label: "公爵・王族（高位）", note: "男 200〜500万 / 女 400〜1,000万 MU｜A級討伐部隊の中核", val: 2000000, maleMax: 5000000, max: 10000000, cls: "gold" },
+];
+
+// Monster scale（MD表と一致・SSSは「推定不能」のため参考値）
+const monsterData = [
+  { label: "F", note: "6歳児3人分", val: 300, cls: "monster" },
+  { label: "E", note: "平民大人1人分", val: 3000, cls: "monster" },
+  { label: "D", note: "中級騎士1人分", val: 30000, cls: "monster" },
+  { label: "C", note: "上級貴族1人分", val: 300000, cls: "monster" },
+  { label: "B", note: "高位貴族1人分", val: 3000000, cls: "monster" },
+  { label: "A", note: "公爵級10人分（大規模軍事作戦の動力源）", val: 30000000, cls: "monster" },
+  { label: "S", note: "A級10体分", val: 300000000, cls: "monster" },
+  { label: "SS", note: "歴史に残る一品。3国合同で確保", val: 3000000000, cls: "monster" },
+  { label: "SSS（古代竜）", note: "概念外。ヴァルナディア由来一片で都市を百年守る（※300億 MUは描画便宜の仮値）", val: 3e10, displayText: "推定不能", cls: "monster" },
+];
+
+// Compare（魔物ランクと人間の等値ペアリング／魔力量のみの参考）
+const compareData = [
+  { hLabel:"平民大人1人（男下限2,000 MU）",       hVal:2000,     mLabel:"E級魔物（3,000 MU）", mVal:3000 },
+  { hLabel:"中級騎士1人（男下限20,000 MU）",      hVal:20000,    mLabel:"D級魔物（30,000 MU）", mVal:30000 },
+  { hLabel:"上級貴族1人（男下限200,000 MU）",     hVal:200000,   mLabel:"C級魔物（300,000 MU）", mVal:300000 },
+  { hLabel:"公爵級・男下限1人（200万 MU）",         hVal:2000000,  mLabel:"B級魔物（300万 MU、上級貴族上限〜公爵下限相当）", mVal:3000000 },
+  { hLabel:"公爵級10人分（平均300万/人 × 10 = 3,000万 MU）",   hVal:30000000, mLabel:"A級魔物（3,000万 MU）", mVal:30000000 },
+];
+
+function renderScale(containerId, data) {
+  const container = document.getElementById(containerId);
+  data.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'scale-row';
+    const val = d.max || d.val;
+    const minVal = d.val;
+    const minPct = logPct(minVal);
+    const maxPct = logPct(val);
+    const barCls = d.cls || '';
+    const rangeTxt = d.displayText ? d.displayText : (d.max ? `${fmt(minVal)}〜${fmt(val)} MU` : `${fmt(val)} MU`);
+    let maleMarker = '';
+    if (d.maleMax && d.maleMax < val) {
+      const malePct = logPct(d.maleMax);
+      maleMarker = `<div class="bar-gender-marker" style="left:${malePct}%"></div>`;
+    }
+    row.innerHTML = `
+      <div class="scale-label"><strong>${d.label}</strong><span>${d.note}</span></div>
+      <div class="bar-track"><div class="bar ${barCls}" style="width:${maxPct}%"></div>${maleMarker}</div>
+      <div class="mu-value">${rangeTxt}</div>
+    `;
+    container.appendChild(row);
+  });
+  // axis
+  const axis = document.createElement('div');
+  axis.className = 'scale-axis';
+  axis.innerHTML = `
+    <div></div>
+    <div class="axis-ticks">
+      <span style="left:${logPct(0.01)}%">0.01</span>
+      <span style="left:${logPct(1)}%">1</span>
+      <span style="left:${logPct(100)}%">100</span>
+      <span style="left:${logPct(10000)}%">1万</span>
+      <span style="left:${logPct(1000000)}%">100万</span>
+      <span style="left:${logPct(100000000)}%">1億</span>
+      <span style="left:${logPct(10000000000)}%">100億</span>
+    </div>
+    <div></div>
+  `;
+  container.appendChild(axis);
+}
+
+renderScale('human-chart', humanData);
+renderScale('monster-chart', monsterData);
+
+// Compare chart: 人間と魔物の等値ペアを2本バーで並べて表示
+const compareContainer = document.getElementById('compare-chart');
+compareData.forEach(d => {
+  const row = document.createElement('div');
+  row.className = 'scale-row';
+  row.innerHTML = `
+    <div class="scale-label"><strong>${d.hLabel}</strong><span style="color:#e5846d">${d.mLabel}</span></div>
+    <div>
+      <div class="bar-track" style="margin-bottom:2px"><div class="bar" style="width:${logPct(d.hVal)}%"></div></div>
+      <div class="bar-track"><div class="bar monster" style="width:${logPct(d.mVal)}%"></div></div>
+    </div>
+    <div class="mu-value">
+      ${fmt(d.hVal)} MU<br>
+      <span style="color:#e5846d">${fmt(d.mVal)} MU</span>
+    </div>
+  `;
+  compareContainer.appendChild(row);
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>魔法システム物理解説 — 魔法と現実の対応</title>
+<style>
+  :root {
+    --bg: #0a0b1a;
+    --bg2: #12132a;
+    --surface: #1a1c38;
+    --surface2: #23254a;
+    --text: #e6e8f5;
+    --muted: #8d92b5;
+    --border: #2e3256;
+    --accent: #a78bfa;
+    --earth: #6ee7a5;
+    --water: #7eb6ff;
+    --fire: #ff8486;
+    --wind: #ffd84a;
+    --reso: #f5f7ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "游ゴシック", "Yu Gothic", "Hiragino Sans", "メイリオ", Meiryo, sans-serif;
+    background: radial-gradient(ellipse at top, #1a1a40 0%, var(--bg) 60%);
+    color: var(--text);
+    line-height: 1.75;
+    padding-bottom: 60px;
+  }
+  /* Hero */
+  .hero {
+    padding: 80px 40px 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(126,182,255,0.04));
+  }
+  .hero .tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    background: linear-gradient(90deg, #a78bfa, #7eb6ff, #6ee7a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p.subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  /* TOC */
+  .toc {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .toc h2 {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .toc ol {
+    columns: 2;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+  /* Sections */
+  section.content {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 30px;
+  }
+  section.content h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+  }
+  section.content h2::before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+  }
+  section.content h3 {
+    font-size: 18px;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  section.content p { margin-bottom: 14px; font-size: 15px; }
+  section.content .lead {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    padding-left: 16px;
+    border-left: 3px solid var(--accent);
+  }
+  /* Callout */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    margin: 20px 0;
+    border-radius: 6px;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.warn { border-left-color: var(--fire); }
+  .callout.warn strong { color: var(--fire); }
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  tr:hover td { background: rgba(167,139,250,0.05); }
+  /* Attribute grid */
+  .attr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .attr-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.2s;
+  }
+  .attr-card:hover { transform: translateY(-2px); }
+  .attr-card.earth { border-top-color: var(--earth); }
+  .attr-card.water { border-top-color: var(--water); }
+  .attr-card.fire  { border-top-color: var(--fire); }
+  .attr-card.wind  { border-top-color: var(--wind); }
+  .attr-card.reso  { border-top-color: var(--reso); }
+  .attr-card h3 {
+    font-size: 20px;
+    margin-bottom: 6px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .attr-card.earth h3 { color: var(--earth); }
+  .attr-card.water h3 { color: var(--water); }
+  .attr-card.fire  h3 { color: var(--fire); }
+  .attr-card.wind  h3 { color: var(--wind); }
+  .attr-card.reso  h3 { color: var(--reso); }
+  .attr-card .sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .attr-card dl { font-size: 13px; }
+  .attr-card dt { font-weight: 600; color: var(--muted); margin-top: 8px; font-size: 12px; letter-spacing: 0.05em; }
+  .attr-card dd { margin-left: 0; margin-top: 2px; }
+  .dot {
+    width: 14px; height: 14px; border-radius: 50%; display: inline-block;
+  }
+  /* SVG wrapper */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 24px 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .diagram .caption { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  /* Footer */
+  footer {
+    max-width: 900px;
+    margin: 80px auto 20px;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 30px; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <span class="tag">MAGIC × PHYSICS</span>
+  <h1>魔法と物理の関係</h1>
+  <p class="subtitle">この世界の魔法は、現実の物理法則に沿って動く。<br>超自然ではなく「まだ未知の物理」として設計されている。</p>
+</section>
+
+<nav class="toc">
+  <h2>目次 / TABLE OF CONTENTS</h2>
+  <ol>
+    <li><a href="#basics">1. 基本原則（1 MU = 1 kJ）</a></li>
+    <li><a href="#molecule">2. 魔力分子とは何か</a></li>
+    <li><a href="#marking">3. マーキング原理</a></li>
+    <li><a href="#lineage">4. 古代5系統と遺伝起源</a></li>
+    <li><a href="#attributes">5. 4属性の物理</a></li>
+    <li><a href="#reso">6. 同調魔法</a></li>
+    <li><a href="#inheritance">7. 副魔石と遺伝</a></li>
+    <li><a href="#conversion">8. 物理換算表</a></li>
+    <li><a href="#limits">9. 魔法の限界</a></li>
+  </ol>
+</nav>
+
+<!-- ========== 1. 基本原則 ========== -->
+<section class="content" id="basics">
+  <h2>1. 基本原則：1 MU = 1 kJ</h2>
+  <p class="lead">この世界の魔法は、エネルギー保存則に従う。無から何かを生み出すことはできない。</p>
+
+  <h3>魔法単位 MU = キロジュール</h3>
+  <p>魔力量の単位 <strong>MU（Magic Unit）</strong>は、物理のエネルギー単位 <strong>kJ（キロジュール）</strong>と1対1に対応する。つまり「100 MUの魔法」を使うのは「100 kJ のエネルギーを費やす」のと同じだ。</p>
+
+  <div class="callout">
+    <strong>1 MU ≒ 1 kJ</strong> — 水1Lを0.24℃上げるエネルギー。<br>
+    人間の基礎代謝（1日あたり）は約 <strong>7,000 MU（7,000 kJ）</strong>。
+  </div>
+
+  <h3>四つの絶対ルール</h3>
+  <table>
+    <tr><th>ルール</th><th>意味</th></tr>
+    <tr><td>① 創造不可</td><td>無から物質・エネルギーは生まれない。既存の素材を「操作・変換」するのみ。</td></tr>
+    <tr><td>② 馴染ませ必須</td><td>操作対象に魔力分子を浸透させる時間（数秒〜数分）が必要。</td></tr>
+    <tr><td>③ 生体反発</td><td>生きている生物の体は魔力を弾く。死後・切断後に操作可能。</td></tr>
+    <tr><td>④ 駆動と制御の分離</td><td>「物を動かすエネルギー（駆動）」と「どう動かすか決める情報処理（制御）」は別コスト。</td></tr>
+  </table>
+
+  <h3>駆動魔力と制御魔力</h3>
+  <p>剣を魔力で投げ飛ばす場合、剣の運動エネルギー（駆動）そのものはわずか数MUだが、「狙った場所に正確に命中させる」ための情報処理コスト（制御）は桁違いに大きい。熟練すると制御コストを下げられる — これが修業の正体。</p>
+</section>
+
+<!-- ========== 2. 魔力分子 ========== -->
+<section class="content" id="molecule">
+  <h2>2. 魔力分子とは何か</h2>
+  <p class="lead">魔法の「素材」は魔力分子。惑星の魔泉から噴出し、大気・水・土壌・生体に満ちている。</p>
+
+  <p>魔力分子は分子サイズの未知の物質で、現実の大気や水に溶け込んでいる。空気を呼吸するのと同じように、人間の体内にも常時流入している。魔法を使うとは、体内と周囲の魔力分子を「自分のもの」として動かす技術だ。</p>
+
+  <div class="callout warn">
+    <strong>用語注意</strong> — 旧資料にあった「魔力素粒子」「魔力ガス」「魔素」という語は<strong>すべて廃止</strong>。現在は<strong>「魔力分子」</strong>で統一されている。
+  </div>
+
+  <h3>分布と濃度</h3>
+  <p>魔力分子は均一ではない。魔泉の周囲は濃度が極めて高く、魔物と古代種が棲む禁域になる。安全地帯（国家が成立している地域）は濃度が低く、魔法の燃費が悪い代わりに魔物が住めない。</p>
+</section>
+
+<!-- ========== 3. マーキング ========== -->
+<section class="content" id="marking">
+  <h2>3. マーキング原理</h2>
+  <p class="lead">「なぜ他人の体は魔法で操作できないのか」の答え。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- body -->
+      <circle cx="110" cy="110" r="55" fill="#23254a" stroke="#a78bfa" stroke-width="2"/>
+      <text x="110" y="115" text-anchor="middle" fill="#e6e8f5" font-size="13">術者</text>
+      <circle cx="110" cy="90" r="8" fill="#a78bfa"/>
+      <text x="110" y="75" text-anchor="middle" fill="#a78bfa" font-size="10">主魔石</text>
+      <!-- unmarked molecules -->
+      <g fill="#8d92b5">
+        <circle cx="40" cy="40" r="3"/><circle cx="70" cy="180" r="3"/>
+        <circle cx="180" cy="50" r="3"/><circle cx="170" cy="170" r="3"/>
+        <circle cx="30" cy="130" r="3"/>
+      </g>
+      <text x="110" y="205" text-anchor="middle" fill="#8d92b5" font-size="11">周囲の無標識魔力分子</text>
+      <!-- arrow -->
+      <path d="M240 110 L310 110" stroke="#a78bfa" stroke-width="2" fill="none" marker-end="url(#arr1)"/>
+      <text x="275" y="100" text-anchor="middle" fill="#a78bfa" font-size="11">主魔石を通過</text>
+      <!-- marked -->
+      <g fill="#a78bfa">
+        <circle cx="380" cy="60" r="4"/><circle cx="420" cy="100" r="4"/>
+        <circle cx="460" cy="140" r="4"/><circle cx="500" cy="80" r="4"/>
+        <circle cx="540" cy="120" r="4"/>
+      </g>
+      <text x="460" y="200" text-anchor="middle" fill="#a78bfa" font-size="11">標識済み魔力分子（術者の署名入り）</text>
+      <!-- control arrow -->
+      <path d="M600 110 L680 110" stroke="#6ee7a5" stroke-width="2" fill="none" marker-end="url(#arr2)"/>
+      <text x="640" y="100" text-anchor="middle" fill="#6ee7a5" font-size="11">遠隔操作可</text>
+      <defs>
+        <marker id="arr1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#a78bfa"/>
+        </marker>
+        <marker id="arr2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#6ee7a5"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="caption">主魔石を通過することで魔力分子に術者固有の「署名」が刻まれる。</div>
+  </div>
+
+  <p>主魔石は一種の<strong>マーキング装置</strong>だ。体内を流れる魔力分子は主魔石を通過することで術者固有の「署名」を持ち、そのマーキング済み分子だけを術者は遠隔で操作できる。<br>
+  他人の体内にも魔力分子はあるが、それは他人の主魔石によって別の署名が入っている（または無署名）ため、勝手には動かせない。これが「生体反発」の物理的な正体でもある。</p>
+
+  <h3>無魔人の残存能力</h3>
+  <p>無魔人は主魔石を持たないが、体全体に微弱なマーキング能力が残っている。そのため<strong>既存のマーキング現象を延長・保持する</strong>ことはでき、術式石の駆動や松明の火を長持ちさせる程度の支援が可能。ただし<strong>火を直接起こしたり水を動かしたりはできない</strong>。</p>
+</section>
+
+<!-- ========== 4. 古代5系統 ========== -->
+<section class="content" id="lineage">
+  <h2>4. 古代5系統と遺伝起源</h2>
+  <p class="lead">4つの属性は「魔法の種類」ではない。5つの古代生物系統の遺伝子に由来する。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- 5 lineages -->
+      <g font-size="12" text-anchor="middle">
+        <circle cx="80"  cy="50" r="32" fill="#6ee7a5" fill-opacity="0.2" stroke="#6ee7a5"/>
+        <text x="80"  y="45" fill="#6ee7a5">地中</text><text x="80"  y="62" fill="#6ee7a5" font-size="10">→ 土</text>
+        <circle cx="220" cy="50" r="32" fill="#7eb6ff" fill-opacity="0.2" stroke="#7eb6ff"/>
+        <text x="220" y="45" fill="#7eb6ff">水棲</text><text x="220" y="62" fill="#7eb6ff" font-size="10">→ 水</text>
+        <circle cx="360" cy="50" r="32" fill="#ff8486" fill-opacity="0.2" stroke="#ff8486"/>
+        <text x="360" y="45" fill="#ff8486">火山</text><text x="360" y="62" fill="#ff8486" font-size="10">→ 火</text>
+        <circle cx="500" cy="50" r="32" fill="#ffd84a" fill-opacity="0.2" stroke="#ffd84a"/>
+        <text x="500" y="45" fill="#ffd84a">空中</text><text x="500" y="62" fill="#ffd84a" font-size="10">→ 風</text>
+        <circle cx="640" cy="50" r="32" fill="#f5f7ff" fill-opacity="0.15" stroke="#f5f7ff"/>
+        <text x="640" y="45" fill="#f5f7ff">群体</text><text x="640" y="62" fill="#f5f7ff" font-size="10">→ 同調</text>
+      </g>
+      <!-- arrows down -->
+      <g stroke="#8d92b5" stroke-width="1" fill="none">
+        <line x1="80"  y1="85" x2="360" y2="140"/>
+        <line x1="220" y1="85" x2="360" y2="140"/>
+        <line x1="360" y1="85" x2="360" y2="140"/>
+        <line x1="500" y1="85" x2="360" y2="140"/>
+        <line x1="640" y1="85" x2="360" y2="140"/>
+      </g>
+      <!-- crossing box -->
+      <rect x="240" y="140" width="240" height="40" rx="6" fill="#23254a" stroke="#a78bfa"/>
+      <text x="360" y="164" text-anchor="middle" fill="#a78bfa" font-size="13">陸上交配期（第一期末期〜第二期前）</text>
+      <!-- to modern -->
+      <line x1="360" y1="180" x2="360" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#arr3)"/>
+      <rect x="200" y="220" width="320" height="50" rx="6" fill="#1a1c38" stroke="#a78bfa"/>
+      <text x="360" y="240" text-anchor="middle" fill="#e6e8f5" font-size="13">現代種（人間・亜人・エルフ）</text>
+      <text x="360" y="258" text-anchor="middle" fill="#8d92b5" font-size="11">全員が5系統すべての遺伝情報を持つ</text>
+      <!-- below -->
+      <text x="360" y="300" text-anchor="middle" fill="#8d92b5" font-size="11">どれが強く発現するかで属性（髪色）が決まる。群体が濃く出ると同調魔法。</text>
+      <defs>
+        <marker id="arr3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#a78bfa"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="caption">5系統は環境ごとに進化し、陸上で交配して現代種の遺伝子プールが形成された。</div>
+  </div>
+
+  <p>第一期（数億年前）の地球では、5つの環境に特化した古代生物系統が進化した。地中・水棲・火山・空中・群体の5つだ。第一期末期に惑星の環境変動でこれらが陸上に集まり、長期間の交配期を経て、現代種の遺伝子プールに<strong>5系統すべての遺伝情報</strong>が取り込まれた。</p>
+  <p>結果として、現代の魔石持ちは4系統いずれかを主に発現するが、まれに<strong>5系統すべてが均衡発現</strong>する個体が生まれる。これが同調魔法使いだ。</p>
+</section>
+
+<!-- ========== 5. 4属性の物理 ========== -->
+<section class="content" id="attributes">
+  <h2>5. 4属性の物理</h2>
+  <p class="lead">属性は「魔法の種類」ではなく「得意な物理対象」。どの物質・現象と親和性が高いかで分かれる。</p>
+
+  <div class="attr-grid">
+
+    <div class="attr-card earth">
+      <h3><span class="dot" style="background:var(--earth)"></span>土</h3>
+      <div class="sub">結晶格子・塑性・密度操作</div>
+      <dl>
+        <dt>対象</dt><dd>岩石・金属・土壌・結晶</dd>
+        <dt>物理的原理</dt><dd>分子間結合エネルギーの調整。格子構造を硬く / 柔らかくする。</dd>
+        <dt>典型コスト</dt><dd>岩石1 m³ を成形：約 3,000〜10,000 MU</dd>
+        <dt>強み</dt><dd>建築・鉱脈探索・長時間持続する構造物</dd>
+        <dt>弱み</dt><dd>速度が遅い。即応戦闘には不向き</dd>
+      </dl>
+    </div>
+
+    <div class="attr-card water">
+      <h3><span class="dot" style="background:var(--water)"></span>水</h3>
+      <div class="sub">水素結合・相変化・湿度</div>
+      <dl>
+        <dt>対象</dt><dd>水分子（H₂O）、大気中の水蒸気</dd>
+        <dt>物理的原理</dt><dd>水素結合 40 kJ/mol。蒸発熱 40.7 kJ/mol。相変化で巨大な熱量が動く。</dd>
+        <dt>典型コスト</dt><dd>水1L 0→100℃：約 418 MU、さらに蒸発：2,260 MU</dd>
+        <dt>強み</dt><dd>凝縮・誘導・状態変化。氷・蒸気・湿度フィールド。</dd>
+        <dt>弱み</dt><dd>乾燥地域では材料不足</dd>
+      </dl>
+    </div>
+
+    <div class="attr-card fire">
+      <h3><span class="dot" style="background:var(--fire)"></span>火</h3>
+      <div class="sub">燃焼・熱運動・魔力自燃焼</div>
+      <dl>
+        <dt>対象</dt><dd>可燃物・熱・魔力分子そのもの</dd>
+        <dt>物理的原理</dt><dd>着火は低コストで、燃焼連鎖は自発的に進む。魔力分子そのものも燃焼可（1 MU = 1 kJ 相当の発熱）。</dd>
+        <dt>典型コスト</dt><dd>木材100g着火：10〜50 MU（以後は自然燃焼）／魔法銃1射：500〜2,000 MU</dd>
+        <dt>強み</dt><dd>少ない投入で大きな熱出力。瞬発的な制圧力</dd>
+        <dt>弱み</dt><dd>燃料が無いと継続できない</dd>
+      </dl>
+    </div>
+
+    <div class="attr-card wind">
+      <h3><span class="dot" style="background:var(--wind)"></span>風</h3>
+      <div class="sub">運動量・気流・空力</div>
+      <dl>
+        <dt>対象</dt><dd>気体分子の運動量</dd>
+        <dt>物理的原理</dt><dd>運動エネルギー (1/2)mv²。空気密度1.2 kg/m³。大量の空気を動かすのは意外と高コスト。</dd>
+        <dt>典型コスト</dt><dd>エアカッター1発：30〜200 MU／飛行（翼型魔防壁込み60kg）：700〜1,850 MU/時間（約12〜31 MU/分）</dd>
+        <dt>強み</dt><dd>遠距離・速度・飛行・音操作</dd>
+        <dt>弱み</dt><dd>空気が薄い環境（高山・地下）で効率低下</dd>
+      </dl>
+    </div>
+
+    <div class="attr-card reso" style="grid-column: 1 / -1;">
+      <h3><span class="dot" style="background:var(--reso)"></span>同調（属性ではない）</h3>
+      <div class="sub">5系統均衡発現による主魔石構造の能力</div>
+      <dl>
+        <dt>位置づけ</dt><dd>4属性と並列ではない。主魔石の内部構造が5系統すべてを均衡発現させた特殊例。</dd>
+        <dt>できること</dt><dd>全属性を薄く扱える／他者との魔力共鳴（念話・共感）／属性魔法の借用／回復系への応用</dd>
+        <dt>稀少性</dt><dd>世界全体で同世代に2〜5人程度。聖女制度の中核。</dd>
+        <dt>髪色</dt><dd>黒→銀→白と成長に伴い変化（全属性均衡の外見的サイン）</dd>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========== 6. 同調 ========== -->
+<section class="content" id="reso">
+  <h2>6. 同調魔法の正体</h2>
+  <p class="lead">「5つ目の属性」ではない。4属性と同じ次元に置いてはいけない。</p>
+
+  <p>同調魔法は古代5系統のうち<strong>群体系統</strong>の遺伝情報が濃く発現したときの能力で、主魔石の内部構造が「全属性にまんべんなく親和」する作りになる。結果として個々の属性は平均的な魔石持ちより弱いが、<strong>属性の壁を越えて他人の魔法と同期できる</strong>。</p>
+
+  <div class="callout">
+    <strong>なぜ属性として扱わないのか</strong>：群体系統は環境適応（岩石・水・火・空気）ではなく「集団行動そのもの」で進化した系統だから。物質を直接操作する能力ではなく、他者と「響き合う」ための構造である。
+  </div>
+
+  <h3>設定上の扱いに関する重要原則</h3>
+  <ul style="padding-left: 24px; margin: 10px 0;">
+    <li>「同調属性」という呼称は<strong>廃止</strong>（属性ではないため）</li>
+    <li>副魔石から来る能力ではなく、<strong>主魔石の構造</strong>由来</li>
+    <li>男女差なし（副魔石ではなく主魔石由来のため）</li>
+    <li>聖女制度は同調魔法使いに対する社会的カテゴリにすぎない</li>
+  </ul>
+</section>
+
+<!-- ========== 7. 副魔石と遺伝 ========== -->
+<section class="content" id="inheritance">
+  <h2>7. 副魔石と遺伝のしくみ</h2>
+  <p class="lead">なぜ女性のほうが魔力量が多いのか、なぜ母系で属性が決まりやすいのか。</p>
+
+  <h3>副魔石とは</h3>
+  <p>副魔石は<strong>女性のみが持つ生殖器官としての魔石</strong>で、5系統の遺伝情報を高密度に濃縮・保管する役目を持つ。機能的には「遺伝情報の金庫＋第二のエネルギータンク」である。この副魔石の存在が、女性の総魔力量を男性の約2倍にしている物理的な根拠。</p>
+
+  <h3>出産時の情報転写</h3>
+  <div class="diagram">
+    <svg viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg">
+      <!-- mother -->
+      <circle cx="120" cy="90" r="50" fill="#23254a" stroke="#a78bfa" stroke-width="2"/>
+      <text x="120" y="85" text-anchor="middle" fill="#e6e8f5" font-size="13">母</text>
+      <circle cx="105" cy="75" r="8" fill="#a78bfa"/>
+      <text x="105" y="60" text-anchor="middle" fill="#a78bfa" font-size="9">主</text>
+      <circle cx="140" cy="100" r="10" fill="#ffd84a" opacity="0.8"/>
+      <text x="140" y="120" text-anchor="middle" fill="#ffd84a" font-size="9">副魔石</text>
+      <!-- arrow -->
+      <path d="M200 90 L340 90" stroke="#ffd84a" stroke-width="2" fill="none" marker-end="url(#arr4)"/>
+      <text x="270" y="80" text-anchor="middle" fill="#ffd84a" font-size="11">5系統遺伝情報＋</text>
+      <text x="270" y="104" text-anchor="middle" fill="#ffd84a" font-size="11">回路バッファを転写</text>
+      <!-- seed -->
+      <circle cx="400" cy="90" r="30" fill="#23254a" stroke="#7eb6ff" stroke-width="2"/>
+      <text x="400" y="90" text-anchor="middle" fill="#e6e8f5" font-size="11">子の主魔石の種</text>
+      <!-- arrow -->
+      <path d="M440 90 L550 90" stroke="#8d92b5" stroke-width="1" stroke-dasharray="4 3" fill="none" marker-end="url(#arr5)"/>
+      <text x="495" y="80" text-anchor="middle" fill="#8d92b5" font-size="10">成長</text>
+      <!-- daughter -->
+      <circle cx="620" cy="90" r="50" fill="#23254a" stroke="#6ee7a5" stroke-width="2"/>
+      <text x="620" y="85" text-anchor="middle" fill="#e6e8f5" font-size="13">娘（10歳〜）</text>
+      <circle cx="605" cy="75" r="8" fill="#6ee7a5"/>
+      <text x="605" y="60" text-anchor="middle" fill="#6ee7a5" font-size="9">主</text>
+      <circle cx="640" cy="100" r="8" fill="#ffd84a" opacity="0.6"/>
+      <text x="640" y="120" text-anchor="middle" fill="#ffd84a" font-size="9">自前の副魔石</text>
+      <defs>
+        <marker id="arr4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#ffd84a"/>
+        </marker>
+        <marker id="arr5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#8d92b5"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="caption">副魔石そのものは母体に残り、娘は約10歳で自前の副魔石を形成する。</div>
+  </div>
+
+  <p>出産時、副魔石に蓄えられた5系統遺伝情報と、母の使い込んだ<strong>魔力回路のパターン</strong>が、子の主魔石の「種」へ情報として転写される。<strong>副魔石という器官そのものは母体に残る</strong>（母体から娘に移譲されるわけではない）。<br>
+  娘は約10歳を境に、自分の体内で独自の副魔石を形成し始める。これが女性の魔力量増加と第二次性徴が同期する生物学的根拠。</p>
+
+  <div class="callout warn">
+    <strong>よくある誤解</strong> — 「副魔石が娘に引き継がれる」「副魔石から生まれた子」といった表現は誤り。<br>
+    引き継がれるのは<strong>情報</strong>であって<strong>器官</strong>ではない。
+  </div>
+</section>
+
+<!-- ========== 8. 物理換算表 ========== -->
+<section class="content" id="conversion">
+  <h2>8. 物理換算表</h2>
+  <p class="lead">1 MU = 1 kJ から具体的なコスト感をつかむ。</p>
+
+  <h3>日常スケール</h3>
+  <table>
+    <tr><th>やること</th><th>物理エネルギー</th><th>消費MU</th><th>体感</th></tr>
+    <tr><td>水1L を 0→100℃ に加熱</td><td>418 kJ</td><td>約 418 MU</td><td>家庭の給湯</td></tr>
+    <tr><td>水1L を沸騰→完全蒸発</td><td>2,260 kJ</td><td>約 2,260 MU</td><td>巨大な湯気雲</td></tr>
+    <tr><td>木材100g を完全燃焼</td><td>2,000 kJ</td><td>約 2,000 MU</td><td>小さな焚き火30分</td></tr>
+    <tr><td>1 kg の石を 10 m 持ち上げ</td><td>0.1 kJ</td><td>約 0.1 MU</td><td>ほぼ無コスト</td></tr>
+    <tr><td>60 kg の人間を 10 m 浮上</td><td>6 kJ</td><td>約 6 MU</td><td>駆動だけなら軽い</td></tr>
+    <tr><td>60 kg の人間を 1 時間飛行維持</td><td>—</td><td>700〜1,850 MU</td><td>翼型魔防壁＋風魔法推進込み</td></tr>
+  </table>
+
+  <h3>戦闘スケール</h3>
+  <table>
+    <tr><th>やること</th><th>消費MU</th><th>所要時間</th></tr>
+    <tr><td>短剣を魔力で投擲（命中込み）</td><td>20〜80 MU</td><td>即時</td></tr>
+    <tr><td>魔法銃1射（焼殺級）</td><td>1,500〜3,000 MU</td><td>即時</td></tr>
+    <tr><td>エアカッター（装甲斬撃）</td><td>100〜400 MU</td><td>1秒</td></tr>
+    <tr><td>密着型魔防壁・中（10秒維持）</td><td>0.2〜0.3 MU</td><td>即時〜10秒</td></tr>
+    <tr><td>拡張型・中型遮蔽壁（10秒維持）</td><td>1〜2 MU</td><td>即時〜10秒</td></tr>
+  </table>
+
+  <h3>人間の魔力量レンジ（1 MU = 1 kJ・男女別）</h3>
+  <p style="font-size:0.85rem;color:var(--text-dim);">女性は副魔石で男性の約2倍（思春期以降に本格成長）。6歳時点では副魔石未成熟のため男女差は微小。</p>
+  <table>
+    <tr><th>階層</th><th>男性（MU）</th><th>女性（MU）</th><th>備考</th></tr>
+    <tr><td>無魔人（大人）</td><td>20〜50</td><td>40〜100</td><td>副魔石なし。男女差は微小</td></tr>
+    <tr><td>6歳児・魔石持ち（段階4）</td><td>100</td><td>100</td><td>副魔石未成熟・男女同値</td></tr>
+    <tr><td>魔石持ち平民・大人</td><td>2,000〜5,000</td><td>4,000〜10,000</td><td>国民の中央値</td></tr>
+    <tr><td>中級騎士・下級貴族</td><td>2万〜5万</td><td>4万〜10万</td><td>C級魔物を捌けるライン</td></tr>
+    <tr><td>上級騎士・上級貴族</td><td>20万〜50万</td><td>40万〜100万</td><td>B級単独討伐ライン</td></tr>
+    <tr><td>公爵・王族（高位）</td><td>200万〜500万</td><td>400万〜1,000万</td><td>A級討伐部隊の中核</td></tr>
+    <tr><td>古代竜（SSS・参考）</td><td colspan="2">推定不能（概念外）</td><td>ヴァルナディア由来一片で都市を百年守る</td></tr>
+  </table>
+</section>
+
+<!-- ========== 9. 限界 ========== -->
+<section class="content" id="limits">
+  <h2>9. 魔法の限界</h2>
+  <p class="lead">何ができないかを明確にすることで、世界観のリアリティが保たれる。</p>
+
+  <h3>できないこと</h3>
+  <table>
+    <tr><th>禁止</th><th>理由</th></tr>
+    <tr><td>無から物質を生む</td><td>質量保存則・エネルギー保存則に反する</td></tr>
+    <tr><td>生きた生物を直接操作</td><td>生体反発。本人の主魔石がマーキング権を持つ</td></tr>
+    <tr><td>時間を巻き戻す</td><td>熱力学第二法則（エントロピー増大則）に反する</td></tr>
+    <tr><td>即座に長距離移動</td><td>運動エネルギーは距離比例で増大する</td></tr>
+    <tr><td>物理的に不可能な形を維持</td><td>馴染ませ切れで解除される</td></tr>
+    <tr><td>無魔人が直接属性魔法を発動</td><td>主魔石がないため魔力分子に署名できない</td></tr>
+  </table>
+
+  <h3>「例外に見えるもの」の実態</h3>
+  <ul style="padding-left: 24px; margin: 10px 0;">
+    <li><strong>回復魔法</strong> — 無から肉体を創るのではなく、既存の細胞の自己治癒を加速する。大損傷は治らない。</li>
+    <li><strong>念視・念写</strong> — 光情報を魔石に記録するだけで、視覚そのものを遠方に転送しているわけではない。</li>
+    <li><strong>通信塔</strong> — 風属性＋感知系の複合で短文音声を1日数回飛ばすだけ。リアルタイムではない。</li>
+    <li><strong>聖女の治癒</strong> — 同調魔法の極端な応用。制御情報を極限まで最適化することで少量の駆動魔力で生体反発を乗り越える。</li>
+  </ul>
+
+  <div class="callout">
+    <strong>作者の執筆原則</strong> — 魔法シーンを書くときは<strong>「駆動エネルギー」と「制御情報」の両方</strong>を意識する。派手さ＝駆動、巧みさ＝制御。強者は両方が高く、熟練者は制御で駆動を節約する。
+  </div>
+</section>
+
+<footer>
+  参照：
+  <a href="../01_魔力システム/物理コスト原理.md">物理コスト原理</a> ／
+  <a href="../01_魔力システム/魔力分子とマーキング.md">魔力分子とマーキング</a> ／
+  <a href="../01_魔力システム/属性の遺伝起源.md">属性の遺伝起源</a> ／
+  <a href="../01_魔力システム/魔石の仕組み.md">魔石の仕組み</a> ／
+  <a href="../01_魔力システム/魔力スケール.md">魔力スケール</a>
+  <br><br>
+  <span style="opacity:0.5">この世界の魔法は、未知だがルールに従う。物理を外れたら、それは魔法ではなく怠惰である。</span>
+</footer>
+
+</body>
+</html>

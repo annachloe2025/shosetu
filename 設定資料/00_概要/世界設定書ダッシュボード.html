@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界設定書 ── インタラクティブリファレンス</title>
+<style>
+  :root {
+    --bg: #0f0e17;
+    --bg2: #1a1828;
+    --bg3: #231f3a;
+    --accent: #a78bfa;
+    --accent2: #7c3aed;
+    --gold: #f0c060;
+    --red: #f87171;
+    --green: #6ee7b7;
+    --blue: #60a5fa;
+    --text: #e2e0f0;
+    --muted: #8b87a8;
+    --border: #2e2a4a;
+    --card: #1e1b30;
+    --tag: #2d2650;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  #sidebar-header {
+    padding: 20px 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #sidebar-header h1 {
+    font-size: 1rem;
+    color: var(--gold);
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  #sidebar-header p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  #search-box {
+    margin: 12px 12px 8px;
+    position: relative;
+  }
+
+  #search-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 8px 12px 8px 32px;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search-input:focus { border-color: var(--accent); }
+
+  #search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .nav-section { padding: 8px 0; }
+
+  .nav-section-title {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    padding: 4px 16px 6px;
+    text-transform: uppercase;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(167,139,250,0.12);
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  .nav-item .icon { font-size: 1rem; min-width: 20px; text-align: center; }
+
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 0.65rem;
+    background: var(--tag);
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+  }
+
+  #topbar h2 {
+    font-size: 1rem;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  #topbar .breadcrumb {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  #content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+  }
+
+  /* ── OVERVIEW ── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .overview-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .overview-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.15);
+  }
+
+  .overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-color, var(--accent));
+    border-radius: 12px 12px 0 0;
+  }
+
+  .overview-card .card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .overview-card h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 6px; }
+  .overview-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── SECTION CONTENT ── */
+  .section-content h2 {
+    font-size: 1.4rem;
+    color: var(--gold);
+    margin-bottom: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-content h3 {
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 22px 0 10px;
+  }
+
+  .section-content h4 {
+    font-size: 0.92rem;
+    color: var(--text);
+    margin: 16px 0 8px;
+    padding-left: 10px;
+    border-left: 3px solid var(--accent2);
+  }
+
+  .section-content p {
+    font-size: 0.87rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .section-content ul {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+
+  .section-content ul li {
+    font-size: 0.86rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  /* ── TABLE ── */
+  .section-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.83rem;
+  }
+
+  .section-content th {
+    background: var(--bg3);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+  }
+
+  .section-content td {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .section-content tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .section-content tr:hover td { background: rgba(167,139,250,0.05); }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 14px 0;
+  }
+
+  .info-box.warning {
+    border-color: #f59e0b44;
+    background: rgba(245,158,11,0.05);
+  }
+
+  .info-box.danger {
+    border-color: #f8717144;
+    background: rgba(248,113,113,0.05);
+  }
+
+  .info-box.success {
+    border-color: #6ee7b744;
+    background: rgba(110,231,183,0.05);
+  }
+
+  .info-box.info {
+    border-color: #60a5fa44;
+    background: rgba(96,165,250,0.05);
+  }
+
+  .info-box-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .info-box.warning .info-box-title { color: #f59e0b; }
+  .info-box.danger .info-box-title { color: #f87171; }
+  .info-box.success .info-box-title { color: #6ee7b7; }
+  .info-box.info .info-box-title { color: #60a5fa; }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    background: var(--tag);
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    margin: 2px;
+  }
+
+  .tag.purple { background: rgba(167,139,250,0.15); color: var(--accent); }
+  .tag.gold { background: rgba(240,192,96,0.12); color: var(--gold); }
+  .tag.red { background: rgba(248,113,113,0.12); color: var(--red); }
+  .tag.green { background: rgba(110,231,183,0.12); color: var(--green); }
+  .tag.blue { background: rgba(96,165,250,0.12); color: var(--blue); }
+
+  /* ── TODO ── */
+  .todo-list {
+    background: rgba(248,113,113,0.05);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 14px 0;
+  }
+
+  .todo-list-title {
+    font-size: 0.78rem;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.83rem;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+
+  .todo-item::before {
+    content: '☐';
+    color: var(--red);
+    min-width: 16px;
+    font-size: 0.9rem;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+    margin: 16px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent2), var(--border));
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg2);
+  }
+
+  .timeline-period {
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .timeline-title {
+    font-size: 0.95rem;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .timeline-body {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── SYSTEM GRID ── */
+  .system-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: 14px 0;
+  }
+
+  .system-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .system-card:hover { border-color: var(--accent); }
+
+  .system-card .sys-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .system-card .sys-icon { font-size: 1.4rem; }
+
+  .system-card .sys-name {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .system-card .sys-alt {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .system-card .sys-body {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .sys-can, .sys-cannot {
+    font-size: 0.78rem;
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+
+  .sys-can { background: rgba(110,231,183,0.07); border-left: 3px solid var(--green); }
+  .sys-cannot { background: rgba(248,113,113,0.07); border-left: 3px solid var(--red); }
+
+  .sys-can b, .sys-cannot b { display: block; margin-bottom: 3px; }
+  .sys-can b { color: var(--green); }
+  .sys-cannot b { color: var(--red); }
+
+  /* ── ZONE MAP ── */
+  .zone-map {
+    margin: 14px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .zone-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .zone-item:last-child { border-bottom: none; }
+  .zone-item:hover { background: rgba(255,255,255,0.03); }
+
+  .zone-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    min-width: 12px;
+  }
+
+  .zone-label {
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 600;
+    min-width: 140px;
+  }
+
+  .zone-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── DANGER METER ── */
+  .danger-meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+
+  .danger-label { font-size: 0.78rem; color: var(--muted); min-width: 120px; }
+
+  .danger-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border);
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .danger-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── STAMPED BADGE ── */
+  .stamp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: var(--red);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin: 4px 4px 4px 0;
+  }
+
+  /* ── SEARCH HIGHLIGHT ── */
+  .highlight {
+    background: rgba(240,192,96,0.3);
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  /* ── HIDDEN ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent2); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    #sidebar { width: 200px; min-width: 200px; }
+    .system-grid { grid-template-columns: 1fr; }
+    #content-area { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <h1>🌍 世界設定書</h1>
+    <p>ファンタジー世界リファレンス</p>
+  </div>
+
+  <div id="search-box">
+    <span id="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="キーワード検索…" oninput="doSearch(this.value)" />
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">メイン</div>
+    <div class="nav-item active" onclick="showPage('overview')" id="nav-overview">
+      <span class="icon">🏠</span> 概要
+    </div>
+    <a href="魔法Wiki.html" target="_blank" class="nav-item" style="text-decoration:none;color:inherit;display:block;">
+      <span class="icon">⚗</span> 魔法Wiki（全36項目）
+    </a>
+    <a href="魔法システム物理解説.html" target="_blank" class="nav-item" style="text-decoration:none;color:inherit;display:block;">
+      <span class="icon">📖</span> 魔法と物理の関係
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">魔力システム</div>
+    <div class="nav-item" onclick="showPage('magistone')" id="nav-magistone">
+      <span class="icon">💎</span> 魔石の仕組み
+    </div>
+    <div class="nav-item" onclick="showPage('systems')" id="nav-systems">
+      <span class="icon">⚡</span> 4系統と適性
+    </div>
+    <div class="nav-item" onclick="showPage('cost')" id="nav-cost">
+      <span class="icon">🔥</span> 消費とコスト
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">世界の歴史</div>
+    <div class="nav-item" onclick="showPage('history')" id="nav-history">
+      <span class="icon">📜</span> 6つの時代
+      <span class="badge">スタンピード</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">地理</div>
+    <div class="nav-item" onclick="showPage('world')" id="nav-world">
+      <span class="icon">🌐</span> 世界概要（北半球）
+    </div>
+    <div class="nav-item" onclick="showPage('continent')" id="nav-continent">
+      <span class="icon">🗺️</span> 人類の大陸
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">禁域と魔泉</div>
+    <div class="nav-item" onclick="showPage('forbidden')" id="nav-forbidden">
+      <span class="icon">🚫</span> 禁域設定
+      <span class="badge">古竜</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <span id="topbar-breadcrumb" class="breadcrumb">メイン /</span>
+    <h2 id="topbar-title">概要</h2>
+  </div>
+
+  <div id="content-area">
+
+    <!-- ──────── PAGE: OVERVIEW ──────── -->
+    <div class="page active" id="page-overview">
+      <div class="section-content">
+        <h2>🌍 世界設定書 ── 概要</h2>
+        <p style="margin-top:14px;">惑星規模で<strong style="color:var(--accent)">魔力分子</strong>が大気・水・土壌・生体組織に満ちる独自のファンタジー世界。生体の<strong style="color:var(--accent)">主魔石</strong>がその魔力分子を<strong style="color:var(--accent)">マーキング</strong>して操作することで、あらゆる魔法現象が成立する。</p>
+        <p>女性主人公を軸にした物語世界で、魔力システムにより<strong style="color:var(--gold)">女性が男性より戦闘的に優位な社会</strong>が自然に形成されている。</p>
+
+        <div class="info-box info" style="margin-top:18px;">
+          <div class="info-box-title">💡 世界の核心コンセプト</div>
+          <ul style="font-size:0.85rem;line-height:2;padding-left:18px;">
+            <li>魔力濃度が<strong style="color:var(--red)">高いほど</strong>強大・長命・<strong style="color:var(--red)">低成長</strong></li>
+            <li>魔力濃度が<strong style="color:var(--green)">低いほど</strong>短命・高成長・<strong style="color:var(--green)">繁栄</strong></li>
+            <li>人類は「魔力の薄い辺境」で細々と生き延びている</li>
+            <li>豊かさと危険は常にトレードオフ</li>
+          </ul>
+        </div>
+
+        <h3>📂 設定カテゴリ</h3>
+        <div class="overview-grid">
+          <div class="overview-card" onclick="showPage('magistone')" style="--card-color:#a78bfa;">
+            <div class="card-icon">💎</div>
+            <h3>魔石の仕組み</h3>
+            <p>主魔石・副魔石の役割、女性優位の根拠、戦闘での戦略的意義</p>
+          </div>
+          <div class="overview-card" onclick="showPage('systems')" style="--card-color:#60a5fa;">
+            <div class="card-icon">⚡</div>
+            <h3>4系統と適性</h3>
+            <p>属性魔法(4属性)＋無属性魔法(強化系・感知系)、それぞれの能力と文明での活用</p>
+          </div>
+          <div class="overview-card" onclick="showPage('cost')" style="--card-color:#f0c060;">
+            <div class="card-icon">🔥</div>
+            <h3>消費とコスト</h3>
+            <p>魔力消費の仕組み、魔石損傷のリスクとステータス</p>
+          </div>
+          <div class="overview-card" onclick="showPage('history')" style="--card-color:#6ee7b7;">
+            <div class="card-icon">📜</div>
+            <h3>6つの時代</h3>
+            <p>原初〜現在までの世界史、スタンピード2回＋予兆中の第三次</p>
+          </div>
+          <div class="overview-card" onclick="showPage('world')" style="--card-color:#34d399;">
+            <div class="card-icon">🌐</div>
+            <h3>世界概要（北半球）</h3>
+            <p>地理ゾーン、魔泉の分布、人類居住域の現状</p>
+          </div>
+          <div class="overview-card" onclick="showPage('continent')" style="--card-color:#f87171;">
+            <div class="card-icon">🗺️</div>
+            <h3>人類の大陸</h3>
+            <p>3つの国家（コンコルディア盟邦・ドミナトゥス帝国・ルクスマーレ王国）、2つの魔泉と古竜</p>
+          </div>
+          <div class="overview-card" onclick="showPage('forbidden')" style="--card-color:#f59e0b;">
+            <div class="card-icon">🚫</div>
+            <h3>禁域と魔泉</h3>
+            <p>魔力濃度別ゾーン、古竜の詳細、スタンピードの発生メカニズム</p>
+          </div>
+        </div>
+
+        <div class="todo-list">
+          <div class="todo-list-title">⚠️ 今後作る予定の設定</div>
+          <div class="todo-item">コンコルディア盟邦・ドミナトゥス帝国の首都</div>
+          <div class="todo-item">無魔人の身分制度の詳細</div>
+          <div class="todo-item">長命種（エルフ系）と人間の関係</div>
+          <div class="todo-item">主人公のキャラクター設定</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: MAGISTONE ──────── -->
+    <div class="page" id="page-magistone">
+      <div class="section-content">
+        <h2>💎 魔石の仕組み</h2>
+        <p>生物が体内で魔力を結晶化したもの。魔力の「コア」として機能し、これを通じて魔力を操作する。魔石を持つ生物はすべて魔力を使える。</p>
+
+        <h3>主魔石 vs 副魔石</h3>
+        <table>
+          <tr><th>項目</th><th>主魔石</th><th>副魔石</th></tr>
+          <tr><td>位置</td><td>心臓付近</td><td>丹田付近</td></tr>
+          <tr><td>対象</td><td>男女共通・すべての生物</td><td><strong style="color:var(--accent)">女性のみ</strong></td></tr>
+          <tr><td>形成</td><td>生まれつき</td><td>10歳前後から自然形成</td></tr>
+          <tr><td>役割</td><td>マーキング装置・生涯保持する魔力タンク・魔力回路の基盤</td><td>古代5系統（地中・水棲・火山・空中・群体）の遺伝情報を濃縮する生殖器官。出産時に5系統情報と一部の魔力を子の主魔石の「種」に転写</td></tr>
+          <tr><td>継承</td><td>子の体内で新規形成（遺伝子に従って）</td><td>娘は母の副魔石を継承せず、10歳前後に自身の主魔石を基に新規形成</td></tr>
+          <tr><td>破壊された場合</td><td>集中的な魔力運用を失う（体組織全体の微弱な残存マーキングで生存可）</td><td>出産能力と余剰魔力を失う</td></tr>
+        </table>
+
+        <h3>出産サイクル（副魔石）</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-period">STEP 1</div>
+            <div class="timeline-title">副魔石の成長・5系統情報濃縮</div>
+            <div class="timeline-body">副魔石が十分に育ち、古代5系統（地中・水棲・火山・空中・群体）の遺伝情報が濃縮される（父から精子経由で届いた遺伝子も統合）</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">STEP 2</div>
+            <div class="timeline-title">情報と魔力の転写</div>
+            <div class="timeline-body">妊娠・出産時に5系統遺伝情報と一部の魔力が子の主魔石の「種」へ転写される（副魔石という器官そのものは母体に残る）</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">STEP 3</div>
+            <div class="timeline-title">一時低下</div>
+            <div class="timeline-body">出産後は副魔石が弱くなり魔力が一時低下</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">STEP 4</div>
+            <div class="timeline-title">再形成・増大</div>
+            <div class="timeline-body">数年かけて副魔石が再形成・増大。出産を重ねるごとに主魔石も鍛えられ魔力が安定して増大</div>
+          </div>
+        </div>
+
+        <div class="info-box success">
+          <div class="info-box-title">✨ 女性が魔力で優位な理由</div>
+          <p style="font-size:0.84rem;line-height:1.8;">副魔石を持つため、魔力量が男性の<strong style="color:var(--gold)">約2倍</strong>になる。魔力量が多いと全系統の底上げになるため、特に肉体強化において男性を大きく上回る。<br>
+          <strong style="color:var(--green)">経産婦は特に強い</strong>：出産を繰り返すごとに主魔石も成長するため、子を産んだ女性ほど魔力が安定して高くなる。</p>
+        </div>
+
+        <h3>⚔️ 戦闘での戦略的意義</h3>
+        <div class="info-box">
+          <ul style="font-size:0.84rem;line-height:2;padding-left:18px;">
+            <li><strong>主魔石を破壊</strong> → 戦闘不能化（殺さずに無力化できる）</li>
+            <li><strong>副魔石を破壊</strong> → 出産能力の剥奪として<span class="tag red">重大な戦争犯罪・禁忌</span>国際的に禁止</li>
+          </ul>
+        </div>
+
+        <h3>起源</h3>
+        <p>「惑星の魔核エネルギーが生命誕生時に自然結晶化したもの」とする。世界の誕生神話と絡めることで説明が成立する。</p>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: SYSTEMS ──────── -->
+    <div class="page" id="page-systems">
+      <div class="section-content">
+        <h2>⚡ 魔力の4系統と適性 <span style="font-size:0.55em;color:var(--text-dim);font-weight:normal;">（属性魔法＋無属性魔法(強化系・感知系)）</span></h2>
+
+        <div class="info-box info">
+          <div class="info-box-title">📌 魔力の基本原理</div>
+          <p style="font-size:0.83rem;line-height:1.8;"><strong>魔力分子</strong>は大気・水・土壌・生体組織に遍在し、重力で惑星に引き留められている。<br>魔石持ちの<strong>主魔石</strong>が周囲の魔力分子を<strong>マーキング</strong>して自己組織化させることで、あらゆる魔法現象が成立する。</p>
+        </div>
+
+        <h3>属性魔法と無属性魔法</h3>
+        <p style="font-size:0.83rem;color:var(--muted);margin-bottom:10px;">魔法は大きく<strong>属性魔法（火・水・土・風の4属性）</strong>と、属性と独立して誰でも習得可能な<strong>無属性魔法（強化系・感知系）</strong>に分かれる。</p>
+        <div class="system-grid">
+          <div class="system-card">
+            <div class="sys-header">
+              <span class="sys-icon">🔮</span>
+              <div>
+                <div class="sys-name">① 属性魔法（4属性）</div>
+                <div class="sys-alt">Elemental Magic / 火・水・土・風</div>
+              </div>
+            </div>
+            <div class="sys-body">
+              火・水・風・土の操作、物体を動かす・変形、熱や光の変換・増幅。先天的な属性適性が必要。<br>
+              <span class="tag blue">遠距離攻撃</span> <span class="tag blue">対魔物に有効</span>
+            </div>
+            <div class="sys-can">
+              <b>✅ できること</b>
+              4元素操作、物体移動・変形、熱光変換
+            </div>
+            <div class="sys-cannot">
+              <b>❌ できないこと</b>
+              無から物質を生み出す、元素を別の元素に変える
+            </div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;">🏙️ 文明代替：調理・鍛冶・建築・輸送</p>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-header">
+              <span class="sys-icon">💪</span>
+              <div>
+                <div class="sys-name">② 強化系（無属性魔法）</div>
+                <div class="sys-alt">Buff / Enhancement</div>
+              </div>
+            </div>
+            <div class="sys-body">
+              筋力・速度・耐久の増幅、感覚の拡張、傷の回復促進、他者への強化付与。<strong>魔防壁（密着型・拡張型・翼型）</strong>もこの系統。翼型魔防壁＋風魔法で飛行が成立する。<br>
+              <span class="tag gold">女性優位が最大</span> 魔力量がそのまま出力に直結
+            </div>
+            <div class="sys-can">
+              <b>✅ できること</b>
+              筋力・速度・耐久増幅、感覚拡張、回復促進、他者強化、魔防壁展開（密着型／拡張型／翼型）
+            </div>
+            <div class="sys-cannot">
+              <b>❌ できないこと</b>
+              死者の蘇生、失った四肢の再生、老化の完全停止
+            </div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;">🏙️ 文明代替：医療・農作業・重労働・個人防御</p>
+          </div>
+
+          <div class="system-card">
+            <div class="sys-header">
+              <span class="sys-icon">👁️</span>
+              <div>
+                <div class="sys-name">③ 感知系（無属性魔法）</div>
+                <div class="sys-alt">Sensing / Detection</div>
+              </div>
+            </div>
+            <div class="sys-body">
+              魔力の流れ・地脈を読む、魔物の気配察知、魔石の有無と魔力量のおおよその把握。<br>
+              <span class="tag green">情報収集</span> <span class="tag green">スタンピード察知</span>
+            </div>
+            <div class="sys-can">
+              <b>✅ できること</b>
+              魔脈読取、気配察知、魔石の有無の感知、魔力量の概算、資源発見
+            </div>
+            <div class="sys-cannot">
+              <b>❌ できないこと</b>
+              心を読む、未来を予測する、魔石内部の回路解読（系統適性の鑑定は不可）
+            </div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:10px;">🏙️ 文明代替：斥候・地脈探索</p>
+          </div>
+        </div>
+
+        <h3>適性の仕組み</h3>
+        <div class="info-box">
+          <ul style="font-size:0.84rem;line-height:2;padding-left:18px;">
+            <li>全員が<strong>属性魔法と無属性魔法(強化・感知)すべて使用可能</strong>（属性魔法は先天的属性適性が必要）</li>
+            <li>生まれつきの「主適性」が1〜2系統あり、効率が高く威力も出やすい</li>
+            <li>訓練で他系統も伸ばせるが、主適性には追いつきにくい</li>
+            <li>魔力量が多いほど全系統の底上げになる（<strong style="color:var(--accent)">女性優位の根拠</strong>）</li>
+          </ul>
+        </div>
+
+        <div class="info-box warning">
+          <div class="info-box-title">⚠️ 大原則</div>
+          <p style="font-size:0.85rem;">変換はできるが、<strong>創造はできない</strong>。何もないところから物質・エネルギーは生み出せない。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: COST ──────── -->
+    <div class="page" id="page-cost">
+      <div class="section-content">
+        <h2>🔥 魔力の消費とコスト</h2>
+        <p>魔力を使うと「<strong>魔力自体の消耗</strong>」と「<strong>体への負荷</strong>」の両方が発生する。</p>
+
+        <h3>消費の段階</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-period">通常使用</div>
+            <div class="timeline-title" style="color:var(--green);">安全域</div>
+            <div class="timeline-body">魔石から魔力が滲み出て消費される。休息・睡眠・食事で回復する。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">酷使・連続使用</div>
+            <div class="timeline-title" style="color:var(--gold);">警戒域</div>
+            <div class="timeline-body">魔力の流れが体に負荷をかける。疲労・頭痛・発熱として現れる。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">限界超過</div>
+            <div class="timeline-title" style="color:var(--red);">危険域</div>
+            <div class="timeline-body">魔石にひびが入り始める。最終的に魔石が破損すると<strong>集中的な魔力運用を失う</strong>（体組織全体の微弱な残存マーキングで生存は可能）。</div>
+          </div>
+        </div>
+
+        <h3>魔石損傷のリスク</h3>
+        <table>
+          <tr><th>状態</th><th>症状</th><th>回復</th></tr>
+          <tr><td><span class="tag green">軽度酷使</span></td><td>疲労・頭痛・発熱</td><td>休息で回復</td></tr>
+          <tr><td><span class="tag gold">重度酷使</span></td><td>魔石にひびが入る</td><td>長期安静で回復可</td></tr>
+          <tr><td><span class="tag red">限界超過</span></td><td>魔石破損</td><td><strong style="color:var(--red)">集中魔力運用の喪失（残存マーキング能力は保持）</strong></td></tr>
+        </table>
+
+        <h3>魔力濃度ゲージ（危険度）</h3>
+        <div class="info-box" style="padding:16px 20px;">
+          <div class="danger-meter">
+            <span class="danger-label">軽度酷使</span>
+            <div class="danger-bar"><div class="danger-fill" style="width:40%;background:linear-gradient(90deg,#6ee7b7,#fcd34d);"></div></div>
+          </div>
+          <div class="danger-meter">
+            <span class="danger-label">重度酷使</span>
+            <div class="danger-bar"><div class="danger-fill" style="width:70%;background:linear-gradient(90deg,#fcd34d,#f97316);"></div></div>
+          </div>
+          <div class="danger-meter">
+            <span class="danger-label">限界超過</span>
+            <div class="danger-bar"><div class="danger-fill" style="width:100%;background:linear-gradient(90deg,#f97316,#ef4444);"></div></div>
+          </div>
+        </div>
+
+        <div class="info-box success">
+          <div class="info-box-title">✨ 女性の有利な点</div>
+          <p style="font-size:0.84rem;line-height:1.8;">魔力量が多い女性は：<br>
+          <strong>①</strong> 「タンクが大きい」＝同じ使用量でも消耗が少ない<br>
+          <strong>②</strong> 「体への負荷も分散できる」＝酷使しても倒れにくい<br>
+          → 魔力量の差が<strong style="color:var(--gold)">戦闘持続力の差</strong>にも直結する。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: HISTORY ──────── -->
+    <div class="page" id="page-history">
+      <div class="section-content">
+        <h2>📜 世界の歴史：6つの時代</h2>
+
+        <table>
+          <tr><th>時代</th><th>名称</th><th>時間スケール</th><th>特徴</th></tr>
+          <tr><td><span class="tag">第一期</span></td><td>原初の時代</td><td>数億〜数十万年前</td><td>知性なし・超長命・魔力極大</td></tr>
+          <tr><td><span class="tag blue">第二期</span></td><td>古竜時代</td><td>数万〜十万年前</td><td>古竜が知性を持つ・寿命数千〜数万年</td></tr>
+          <tr><td><span class="tag green">第三期</span></td><td>長命種の時代</td><td>数万年前</td><td>エルフ的長命種が誕生・寿命数百〜千年</td></tr>
+          <tr><td><span class="tag gold">第四期</span></td><td>短命種の台頭</td><td>数千〜一万年前</td><td>現人類の祖先誕生・寿命80年前後</td></tr>
+          <tr><td><span class="tag purple">第五期</span></td><td>人間の原始時代</td><td>数千年前</td><td>母系部族社会・安全地帯の争奪</td></tr>
+          <tr><td><span class="tag red">第六期</span></td><td>中世風国家の時代</td><td><strong>現在</strong></td><td>複数の国家・無魔人差別・古代種が禁域に健在</td></tr>
+        </table>
+
+        <h3>各時代の詳細</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-period">第一期 ── 数億〜数十万年前</div>
+            <div class="timeline-title">惑星誕生・原初の時代</div>
+            <div class="timeline-body">魔核が形成され魔泉が各地に噴出。魔力が大気・水・土壌に満ちる。生物は魔力を帯びた環境で進化するが知性はない。巨大・強大な原初生物が世界を支配。魔力濃度：極大。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">第二期 ── 数万〜十万年前</div>
+            <div class="timeline-title">知性の誕生・古竜時代</div>
+            <div class="timeline-body">魔力を深く取り込んだ生物が知性を持ち始める。ドラゴンをはじめとする古竜種が世界の頂点に立つ。独自の文化・言語を持つ。寿命：数千〜数万年。<strong style="color:var(--gold)">古竜は魔泉の周囲に縄張りを持ち、今も生き続けている個体が存在する。</strong></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">第三期 ── 数万年前</div>
+            <div class="timeline-title">長命種の時代・エルフ祖先誕生</div>
+            <div class="timeline-body">魔力濃度がやや薄い地域で新たな知性種が誕生。寿命数百〜千年のエルフ的長命種が文明を築く。技術・魔力操作の体系化が始まる。魔力を持たない個体も一定数生まれ始める。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">第四期 ── 数千〜一万年前</div>
+            <div class="timeline-title">短命種の台頭・現人類の祖先</div>
+            <div class="timeline-body">魔力の薄い辺境地帯で寿命80年前後の短命種が爆発的に繁殖。成長速度が高く世代交代が速いため技術・文化の進歩が急速。<strong style="color:var(--red)">魔力を持たない「無魔人」が差別される身分制度がこの頃から形成される。</strong></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">第五期 ── 数千年前</div>
+            <div class="timeline-title">人間の原始時代</div>
+            <div class="timeline-body">短命種が部族・集落単位で生活。女性の高い魔力量が集落の守護に使われ、母系社会が中心。魔力の薄い「安全地帯」を部族間で奪い合う小競り合いが続く。<br>
+            <div style="margin-top:6px;"><span class="stamp-badge">⚡ 第一次スタンピード</span> 魔脈の活性化により人類の原始部族の大半が壊滅</div></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period">第六期 ── 現在</div>
+            <div class="timeline-title">中世風国家の時代</div>
+            <div class="timeline-body">魔力の薄い安全地帯に国家が形成される。国力は「安全地帯の広さ」と「魔力持ち戦士の数」で決まる。無魔人への差別・搾取が制度化された社会。<br>
+            <div style="margin-top:6px;"><span class="stamp-badge">⚡ 第二次スタンピード</span> 複数の国が連合して初めて撃退。対魔物同盟の原型となる</div>
+            <div style="margin-top:4px;"><span class="stamp-badge" style="border-color:rgba(251,191,36,0.4);color:#fbbf24;background:rgba(251,191,36,0.1);">⚠️ 第三次スタンピード（予兆）</span> 感知系魔力使いたちが魔脈の異常な活性化を感知中</div></div>
+          </div>
+        </div>
+
+        <h3>スタンピード記録まとめ</h3>
+        <table>
+          <tr><th>回</th><th>時代</th><th>規模・結果</th><th>意義</th></tr>
+          <tr><td><span class="tag red">第一次</span></td><td>第五期</td><td>人類の原始部族の大半が壊滅</td><td>「魔物への恐怖」を文化の根底に刻む</td></tr>
+          <tr><td><span class="tag red">第二次</span></td><td>第六期初期</td><td>複数国連合でようやく撃退</td><td>国家間「対魔物同盟」の原型</td></tr>
+          <tr><td><span class="tag gold">第三次（予兆）</span></td><td>第六期・現在</td><td>感知系が異常を感知中</td><td>物語の緊張の背景として機能</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: WORLD ──────── -->
+    <div class="page" id="page-world">
+      <div class="section-content">
+        <h2>🌐 世界概要（北半球）</h2>
+
+        <div class="info-box info">
+          <div class="info-box-title">📌 基本構造</div>
+          <ul style="font-size:0.84rem;line-height:2;padding-left:18px;">
+            <li>地球に近い惑星構造</li>
+            <li><strong>北半球のみ人類が把握している</strong></li>
+            <li>赤道帯は魔力極大域・完全禁域</li>
+            <li>南半球は未知の領域</li>
+          </ul>
+        </div>
+
+        <h3>地理的ゾーン（北から南へ）</h3>
+        <div class="zone-map">
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#ef4444;box-shadow:0 0 6px #ef4444;"></div>
+            <div class="zone-label">極北魔泉域（ドラフト）</div>
+            <div class="zone-desc">最北部 ── 極点方向の凍土魔泉域（ドラフト構想）。現行公式の2山脈体制（東方ヴァルナディア山脈・西方ガルヴェイン山脈）とは別枠</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#f97316;box-shadow:0 0 6px #f97316;"></div>
+            <div class="zone-label">北方山岳帯</div>
+            <div class="zone-desc">北寄り ── 魔脈ベルトが走る・強力な魔物が常住</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#6ee7b7;box-shadow:0 0 6px #6ee7b7;"></div>
+            <div class="zone-label">人類居住域</div>
+            <div class="zone-desc">中緯度 ── 安全地帯・惑星全体の数％のみ。国家が存在</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#f97316;"></div>
+            <div class="zone-label">南方危険地帯</div>
+            <div class="zone-desc">南寄り ── 赤道に近づくほど魔物が強大</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#ef4444;box-shadow:0 0 8px #ef4444;"></div>
+            <div class="zone-label">赤道帯（完全禁域）</div>
+            <div class="zone-desc">最南（北半球） ── 魔力極大・人類到達不可能</div>
+          </div>
+        </div>
+
+        <h3>魔泉の分布（北半球）</h3>
+        <p style="font-size:0.82rem;color:var(--text-sub);">現行公式は<strong>人類の大陸の2山脈体制</strong>に整理されている。北半球スケールの追加魔泉（極北等）はドラフト扱い。</p>
+        <table>
+          <tr><th>魔泉</th><th>場所</th><th>古竜</th><th>特徴</th></tr>
+          <tr><td><span class="tag red">東方魔泉</span> ヴァルナディア山脈</td><td>人類の大陸・北東（山脈の向こう側）</td><td>ヴァルナディア（友好的古竜・枯れた白銀型）</td><td>約5000年前に人類と接触・竜貨/竜神殿を通じた交流あり</td></tr>
+          <tr><td><span class="tag red">西方魔泉</span> ガルヴェイン山脈</td><td>人類の大陸・西端の禁域</td><td>ガルヴェイン（敵対的古竜・煮える深紅型）</td><td>コンコルディア盟邦と直接隣接・最大の脅威</td></tr>
+          <tr><td><span class="tag gold">追加魔泉（ドラフト）</span></td><td>極北・東方凍土など</td><td>未設定</td><td>北半球全体での魔泉分布はドラフト段階</td></tr>
+        </table>
+
+        <h3>人類居住域の現状</h3>
+        <div class="info-box warning">
+          <div class="info-box-title">⚠️ 居住域は惑星全体のわずか数％</div>
+          <p style="font-size:0.84rem;line-height:1.8;">魔力が薄く魔物がほぼ出現しない稀少な土地。この土地をめぐって国家・部族が争う。魔力が薄いため無魔人も比較的多く、差別と共存が混在する。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: CONTINENT ──────── -->
+    <div class="page" id="page-continent">
+      <div class="section-content">
+        <h2>🗺️ 人類の大陸</h2>
+
+        <div class="info-box info">
+          <div class="info-box-title">📌 基本情報</div>
+          <p style="font-size:0.84rem;line-height:1.8;"><strong>形状：</strong>北アメリカ大陸に類似した形<br>
+          <strong>政治：</strong>大陸内に複数の国家が存在</p>
+        </div>
+
+        <h3>方角別の状況</h3>
+        <div class="zone-map">
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#ef4444;"></div>
+            <div class="zone-label">西</div>
+            <div class="zone-desc">敵対的古竜の領域・移動不可能</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#f97316;"></div>
+            <div class="zone-label">南</div>
+            <div class="zone-desc">魔物が強すぎて人類は行けない</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#a78bfa;"></div>
+            <div class="zone-label">北東</div>
+            <div class="zone-desc">友好的古竜の領域・基本的に立入禁止</div>
+          </div>
+          <div class="zone-item">
+            <div class="zone-dot" style="background:#6ee7b7;"></div>
+            <div class="zone-label">東</div>
+            <div class="zone-desc">海（魔物の領域・航海不可能）</div>
+          </div>
+        </div>
+
+        <h3>地形</h3>
+        <table>
+          <tr><th>地形</th><th>特徴</th></tr>
+          <tr><td>北方山脈（屏障）</td><td>大陸北部を東西に走る。北東の魔泉・魔物からの自然の防壁。山脈の向こうに友好的古竜が住む</td></tr>
+          <tr><td>大河</td><td>大陸を南北に縦断。自然な国境線かつ主要交易路。複数の支流あり</td></tr>
+          <tr><td>中央平野</td><td>大河流域の農業地帯。最も人口が多い居住域</td></tr>
+          <tr><td>東海岸</td><td>人類発祥の地。魔力が最も薄く安全な居住域。塩の産出地</td></tr>
+        </table>
+
+        <h3>2つの魔泉と古竜</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;">
+          <div class="info-box success">
+            <div class="info-box-title">🐉 北東の魔泉（友好的古竜ヴァルナディア）</div>
+            <p style="font-size:0.82rem;line-height:1.8;">北方山脈の向こう側（ヴァルナディア山脈）に位置。<strong style="color:var(--green)">枯れた白銀型の古竜ヴァルナディアが君臨</strong>。約5000年前に人類と正式接触し、竜貨・竜神殿・世界史を人類に伝えた存在。特定の人物・使者とのみ交流。西のガルヴェインと<strong>敵対関係</strong>。</p>
+          </div>
+          <div class="info-box danger">
+            <div class="info-box-title">🐲 西の魔泉（敵対的古竜ガルヴェイン）</div>
+            <p style="font-size:0.82rem;line-height:1.8;">大陸西端の禁域（ガルヴェイン山脈）に位置。<strong style="color:var(--red)">煮える深紅型の古竜ガルヴェインが君臨</strong>。ヴァルナディアとは長年の因縁がある。人類とは基本的に交わらない。コンコルディア盟邦の最大の脅威。</p>
+          </div>
+        </div>
+
+        <h3>3つの国家</h3>
+        <table>
+          <tr><th>国家</th><th>位置</th><th>特徴</th><th>課題</th></tr>
+          <tr>
+            <td><span class="tag red">西方</span> コンコルディア盟邦</td>
+            <td>大陸西部（山脈とガルヴェイン山脈の間）</td>
+            <td>現代亜人族中心・軍事的で独立心が強い・屈強な戦士が多い</td>
+            <td>ガルヴェインの脅威と隣接</td>
+          </tr>
+          <tr>
+            <td><span class="tag green">中央</span> ドミナトゥス帝国</td>
+            <td>大河流域の中央部</td>
+            <td>人間中心・拡張主義・大河を活かした農業国</td>
+            <td>南方の魔物の脅威・辺境の統治</td>
+          </tr>
+          <tr>
+            <td><span class="tag blue">東方</span> ルクスマーレ王国（王都ルメリア）</td>
+            <td>東海岸・東部</td>
+            <td>人間中心（亜人も共存）・保守的王国・最も平和で豊かな国土</td>
+            <td>南方からの魔物の脅威（他国より軽微）</td>
+          </tr>
+        </table>
+
+        <div class="todo-list">
+          <div class="todo-list-title">⚠️ 未設定項目</div>
+          <div class="todo-item">コンコルディア盟邦・ドミナトゥス帝国の首都</div>
+          <div class="todo-item">各国の政体の詳細</div>
+          <div class="todo-item">長命種（エルフ系）の居住域</div>
+          <div class="todo-item">無魔人の身分制度の詳細</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: FORBIDDEN ──────── -->
+    <div class="page" id="page-forbidden">
+      <div class="section-content">
+        <h2>🚫 禁域と魔泉の設定</h2>
+        <p>「境界線」が存在するわけではなく、魔物が強すぎて人類では近づけない地帯。近づくほど強大な魔物と遭遇し、最終的に人類では生存不可能な濃度になる。</p>
+
+        <h3>世界の構造（魔力濃度別）</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-period" style="color:var(--red);">【絶対禁域】</div>
+            <div class="timeline-title" style="color:var(--red);">魔泉核心部</div>
+            <div class="timeline-body">魔力濃度：極大。生物が数分で魔力に侵食され変容・死亡する。第一期・第二期の古代生物が今も生息。古竜は魔泉を縄張りとし、知性を持ちながら人類とは基本的に交わらない。<strong>人類の到達記録はほぼ存在しない。</strong></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period" style="color:#f97316;">【高濃度帯】</div>
+            <div class="timeline-title" style="color:#f97316;">魔脈ベルト</div>
+            <div class="timeline-body">複数の魔泉をつなぐ地脈の幹線。魔泉ほどではないが魔力濃度が高く、強力な魔物が常住する。第二期・第三期の知性ある魔物も存在。人類の精鋭部隊でも深入りは命がけ。<span class="tag red">スタンピードの主な発生起点</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period" style="color:var(--gold);">【グレーゾーン】</div>
+            <div class="timeline-title" style="color:var(--gold);">緩衝地帯</div>
+            <div class="timeline-body">魔脈と人類居住域の間。魔物は出るが討伐可能な強さ。冒険者・軍の哨戒線がある。資源採取・遺跡調査が行われる。長命種（エルフ系）の集落が点在することもある。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-period" style="color:var(--green);">【安全地帯】</div>
+            <div class="timeline-title" style="color:var(--green);">人類居住域</div>
+            <div class="timeline-body">魔力濃度が低く、魔物がほぼ出現しない稀少な土地。惑星全体の面積のわずか<strong>数％程度</strong>。この土地をめぐって国家・部族が争う。</div>
+          </div>
+        </div>
+
+        <h3>古竜について</h3>
+        <div class="info-box">
+          <div class="info-box-title">🐉 共通特徴</div>
+          <ul style="font-size:0.83rem;line-height:2;padding-left:18px;">
+            <li>第二期から生き続ける個体が存在（数万〜十万年生きている）</li>
+            <li>知性・言語を持つ</li>
+            <li>魔泉を縄張りとして支配する</li>
+            <li>人類から見れば<strong>神話の存在が実在する</strong></li>
+          </ul>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;">
+          <div class="info-box success">
+            <div class="info-box-title">🐉 ヴァルナディア（北東の魔泉・友好的古竜）</div>
+            <ul style="font-size:0.82rem;line-height:1.8;padding-left:16px;">
+              <li>枯れた白銀型。人類に対して友好的</li>
+              <li>約5000年前に人類と正式接触。竜貨・竜神殿・世界史を伝えた存在</li>
+              <li>特定の人物・使者とのみ交流する</li>
+              <li>ガルヴェインと<strong>敵対関係</strong></li>
+            </ul>
+          </div>
+          <div class="info-box danger">
+            <div class="info-box-title">🐲 ガルヴェイン（西の魔泉・敵対的古竜）</div>
+            <ul style="font-size:0.82rem;line-height:1.8;padding-left:16px;">
+              <li>煮える深紅型。人類に対して敵対的・無関心</li>
+              <li>ヴァルナディアとは長年の因縁がある</li>
+              <li>コンコルディア盟邦にとっての最大の脅威</li>
+              <li>動機：ヴァルナディアが育てる人類への対抗</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>スタンピード発生メカニズム</h3>
+        <div class="info-box warning">
+          <div class="info-box-title">⚡ 発生メカニズム</div>
+          <p style="font-size:0.84rem;line-height:1.8;">魔脈が活性化すると魔物が大量に溢れ人類居住域に流れ込む。発生は不定期・予測困難。<strong>感知系の魔力使いが「魔脈の乱れ」として事前察知できる場合がある。</strong></p>
+        </div>
+
+        <div class="todo-list">
+          <div class="todo-list-title">⚠️ 未設定項目</div>
+          <div class="todo-item">原初の巨大生物（第一期の生き残り）の詳細</div>
+          <div class="todo-item">2体の古竜が敵対するようになった具体的経緯</div>
+          <div class="todo-item">魔泉から採取できる資源（魔力結晶など）</div>
+          <div class="todo-item">魔物の種類一覧</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────── PAGE: SEARCH RESULTS ──────── -->
+    <div class="page" id="page-search">
+      <div class="section-content">
+        <h2>🔍 検索結果</h2>
+        <div id="search-results"></div>
+      </div>
+    </div>
+
+  </div><!-- /content-area -->
+</div><!-- /main -->
+
+<script>
+// ── NAVIGATION ──
+const pages = {
+  'overview':   { title: '概要', breadcrumb: 'メイン' },
+  'magistone':  { title: '魔石の仕組み', breadcrumb: '魔力システム' },
+  'systems':    { title: '4系統と適性', breadcrumb: '魔力システム' },
+  'cost':       { title: '消費とコスト', breadcrumb: '魔力システム' },
+  'history':    { title: '6つの時代', breadcrumb: '世界の歴史' },
+  'world':      { title: '世界概要（北半球）', breadcrumb: '地理' },
+  'continent':  { title: '人類の大陸', breadcrumb: '地理' },
+  'forbidden':  { title: '禁域と魔泉', breadcrumb: '禁域と魔泉' },
+};
+
+function showPage(id) {
+  // hide all
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('page-' + id).classList.add('active');
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+
+  const info = pages[id];
+  if (info) {
+    document.getElementById('topbar-title').textContent = info.title;
+    document.getElementById('topbar-breadcrumb').textContent = info.breadcrumb + ' /';
+  }
+
+  // clear search
+  document.getElementById('search-input').value = '';
+
+  // scroll to top
+  document.getElementById('content-area').scrollTop = 0;
+}
+
+// ── SEARCH ──
+const searchIndex = [
+  { page: 'overview', keywords: ['概要', '世界', 'ファンタジー', '魔力', 'コンセプト', '設定'] },
+  { page: 'magistone', keywords: ['魔石', '主魔石', '副魔石', '出産', '女性', '優位', '破壊', '心臓', '丹田', '経産婦', '5系統', '遺伝情報', '同調魔法', '群体系統', 'マーキング'] },
+  { page: 'systems', keywords: ['4系統', '強化', '属性', '感知', '適性', '火', '水', '風', '土', '防壁', '鑑定', '属性魔法', '無属性魔法', '魔防壁'] },
+  { page: 'cost', keywords: ['消費', 'コスト', '疲労', '頭痛', '発熱', 'ひび', '破損', '限界', '酷使', '残存マーキング'] },
+  { page: 'history', keywords: ['歴史', '時代', '古竜', 'エルフ', '長命種', '短命種', '無魔人', 'スタンピード', '第一期', '第二期', '第三期', '第四期', '第五期', '第六期', '母系'] },
+  { page: 'world', keywords: ['北半球', '赤道', '禁域', '魔泉', '地理', 'ゾーン', '極北', '居住域', '南半球'] },
+  { page: 'continent', keywords: ['大陸', '国家', 'コンコルディア盟邦', 'ドミナトゥス帝国', 'ルクスマーレ王国', 'ルメリア', '西方王国', '中央連合', '東方諸国', '大河', '山脈', '港湾', '東海岸', '北アメリカ'] },
+  { page: 'forbidden', keywords: ['禁域', '古竜', 'ヴァルナディア', 'ガルヴェイン', '魔脈', '友好', '敵対', 'スタンピード', '安全地帯', '緩衝', '魔泉核心', '知性'] },
+];
+
+function doSearch(query) {
+  if (!query.trim()) {
+    // go back if we're on search page
+    if (document.getElementById('page-search').classList.contains('active')) {
+      showPage('overview');
+    }
+    return;
+  }
+
+  const q = query.toLowerCase();
+  const matches = searchIndex.filter(item =>
+    item.keywords.some(k => k.toLowerCase().includes(q))
+  );
+
+  // Show search page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-search').classList.add('active');
+  document.getElementById('topbar-title').textContent = '検索結果';
+  document.getElementById('topbar-breadcrumb').textContent = `"${query}" /`;
+
+  const resultsEl = document.getElementById('search-results');
+  if (matches.length === 0) {
+    resultsEl.innerHTML = `<p style="color:var(--muted);font-size:0.87rem;">「${query}」に一致する項目が見つかりませんでした。</p>`;
+    return;
+  }
+
+  resultsEl.innerHTML = matches.map(m => {
+    const info = pages[m.page];
+    const matchedKws = m.keywords.filter(k => k.toLowerCase().includes(q));
+    return `
+      <div class="overview-card" onclick="showPage('${m.page}')" style="--card-color:var(--accent);margin-bottom:12px;cursor:pointer;">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">${info.breadcrumb}</div>
+        <h3 style="font-size:1rem;">${info.title}</h3>
+        <p style="margin-top:8px;">${matchedKws.map(k => `<span class="tag purple">${k}</span>`).join('')}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// init
+showPage('overview');
+</script>
+</body>
+</html>

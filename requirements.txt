@@ -1,0 +1,13 @@
+# Python packages required to build the MkDocs site.
+#
+# Install:
+#   pip install -r requirements.txt
+#
+# Preview locally:
+#   mkdocs serve
+#
+# Build static site:
+#   mkdocs build
+
+mkdocs==1.6.1
+mkdocs-material==9.5.49
