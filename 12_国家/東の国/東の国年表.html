@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>東の国 年表</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d1a;
+      color: #e8e0d0;
+      font-family: 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1230, #0d1a30);
+      border-bottom: 2px solid #b8960c;
+      padding: 24px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 { font-size: 1.6rem; color: #f0d060; letter-spacing: 0.2em; }
+    header p  { font-size: 0.8rem; color: #9090a0; margin-top: 4px; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      padding: 14px 40px;
+      background: #111122;
+      border-bottom: 1px solid #333355;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #b0b0c0; }
+    .legend-dot  { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    /* 時代ヘッダー */
+    .era-header {
+      text-align: center; margin: 52px 0 12px; position: relative;
+    }
+    .era-header::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px; background: #2a2a4a;
+    }
+    .era-header span {
+      position: relative; background: #0d0d1a;
+      padding: 6px 20px; font-size: 0.85rem; color: #8080a0;
+      border: 1px solid #2a2a4a; border-radius: 20px; letter-spacing: 0.15em;
+    }
+
+    /* タイムライン */
+    .timeline { position: relative; padding-left: 30px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(to bottom, #b8960c55, #2a4a8a, #b8960c55);
+    }
+
+    /* イベントカード */
+    .event {
+      position: relative; margin-bottom: 18px; padding: 14px 18px;
+      border-radius: 8px; border-left: 3px solid;
+      background: #12121f; transition: transform 0.15s, background 0.15s;
+    }
+    .event:hover { transform: translateX(4px); background: #1a1a2e; }
+    .event::before {
+      content: ''; position: absolute; left: -26px; top: 18px;
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid #0d0d1a;
+    }
+
+    /* カテゴリ色 */
+    .cat-world     { border-color: #707070; }
+    .cat-world::before     { background: #707070; }
+    .cat-founding  { border-color: #c8a020; }
+    .cat-founding::before  { background: #c8a020; }
+    .cat-political { border-color: #6a9ed0; }
+    .cat-political::before { background: #6a9ed0; }
+    .cat-military  { border-color: #c04040; }
+    .cat-military::before  { background: #c04040; }
+    .cat-saint     { border-color: #a060d0; }
+    .cat-saint::before     { background: #a060d0; }
+    .cat-character { border-color: #40a070; }
+    .cat-character::before { background: #40a070; }
+
+    .event-time   { font-size: 0.72rem; color: #8080a0; margin-bottom: 4px; letter-spacing: 0.1em; }
+    .event-title  { font-size: 1rem; color: #f0e8d0; margin-bottom: 6px; font-weight: bold; }
+    .event-body   { font-size: 0.82rem; color: #a0a0b8; line-height: 1.75; }
+    .event-body ul { padding-left: 1.2em; }
+    .event-body li { margin-bottom: 2px; }
+
+    .badge {
+      display: inline-block; font-size: 0.65rem; padding: 1px 7px;
+      border-radius: 10px; margin-left: 8px; vertical-align: middle; font-weight: normal;
+    }
+    .badge-unconfirmed { background: #3a2a10; color: #b08030; border: 1px solid #b08030; }
+    .badge-story       { background: #102030; color: #4080a0; border: 1px solid #4080a0; }
+
+    .add-area {
+      text-align: center; padding: 28px;
+      color: #404060; font-size: 0.82rem;
+      border: 1px dashed #2a2a4a; border-radius: 8px; margin-top: 16px;
+      line-height: 2;
+    }
+
+    footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #404060; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>東の国 ── 年表</h1>
+  <p>人類史の始まり（約5000年前）〜 現在 ／ ※未確定は「要確認」バッジ付き</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#707070"></div>世界史・人類史</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c8a020"></div>建国・起源</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6a9ed0"></div>政治・制度</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c04040"></div>軍事・スタンピード</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a060d0"></div>聖女・魔法</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#40a070"></div>主要人物</div>
+</div>
+
+<div class="container">
+
+  <!-- ===== 人類史の夜明け ===== -->
+  <div class="era-header"><span>■ 人類史の始まり（約5000年前）</span></div>
+  <div class="timeline">
+
+    <div class="event cat-world">
+      <div class="event-time">約5000年前</div>
+      <div class="event-title">人類史の開始（第五期・原始時代）</div>
+      <div class="event-body"><ul>
+        <li>ホモサピエンス的な現人類が安全地帯の辺境で増え始める</li>
+        <li>母系部族社会。魔物の脅威と隣り合わせの原始的な生活</li>
+        <li>魔石持ちの女性が部族を率いる構造がこの頃から自然に形成される</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-military">
+      <div class="event-time">第五期（時期未確定）</div>
+      <div class="event-title">第一次スタンピード</div>
+      <div class="event-body"><ul>
+        <li>人類の原始部族の大半が壊滅する大規模スタンピード</li>
+        <li>北東の古竜が放逐体だった可能性がある <span class="badge badge-unconfirmed">未確定</span></li>
+        <li>生き残った部族が再び各地に広がっていく</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-world">
+      <div class="event-time">5000年前〜500年前</div>
+      <div class="event-title">人類の成長期：小国・部族国家の形成</div>
+      <div class="event-body"><ul>
+        <li>安全地帯を中心に各地で集落・小国が発展していく</li>
+        <li>魔法技術の発達、身分制度の確立、農業・牧畜の普及</li>
+        <li>複数の国家が並立し、互いに競合・協力する時代が続く</li>
+        <li>この時代の詳細は未設定</li>
+      </ul></div>
+    </div>
+
+  </div>
+
+  <!-- ===== 第二次スタンピードと建国 ===== -->
+  <div class="era-header"><span>■ 文明の壊滅と再生（約500年前）</span></div>
+  <div class="timeline">
+
+    <div class="event cat-military">
+      <div class="event-time">約500年前</div>
+      <div class="event-title">第二次スタンピード ── 文明壊滅</div>
+      <div class="event-body"><ul>
+        <li>史上最大規模のスタンピードが発生。当時の人類の国々がほぼ壊滅</li>
+        <li>積み上げてきた文明・制度・記録の大半が失われる</li>
+        <li>西の古代竜が放逐体だった可能性がある <span class="badge badge-unconfirmed">未確定</span></li>
+        <li>生き残った人々は散り散りとなり、廃墟の中で再起を図る</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-founding">
+      <div class="event-time">約500年前・壊滅直後</div>
+      <div class="event-title">建国の聖女、北東の古代竜と邂逅</div>
+      <div class="event-body"><ul>
+        <li>廃墟の中から同調魔法を持つ一人の聖女が現れる</li>
+        <li>北東の魔泉に住む古代竜と初接触。世界の知識・歴史・魔物の仕組みを教わる</li>
+        <li>古代竜との取り決めが交わされる（詳細未設定）</li>
+        <li>この邂逅が東の国の建国の礎となる</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-political">
+      <div class="event-time">約500年前・建国期</div>
+      <div class="event-title">王妃会議・王室制度の確立</div>
+      <div class="event-body"><ul>
+        <li>武闘大会による王妃選出制度が始まる</li>
+        <li>聖女の血を持つ男性を集める王室（男性後宮）が設けられる</li>
+        <li>「聖女の血を継承するため」という建前のもと制度が定着</li>
+        <li style="color:#706060">※ 実際は同調魔法と血統は無関係だが、誰もその真実を知らない</li>
+        <li>王妃会議が国家最高意思決定機関となる</li>
+      </ul></div>
+    </div>
+
+  </div>
+
+  <!-- ===== 建国〜近代 ===== -->
+  <div class="era-header"><span>■ 建国後の歴史（約500年間）</span></div>
+  <div class="timeline">
+
+    <div class="event cat-world">
+      <div class="event-time">建国〜現在（500年間）</div>
+      <div class="event-title">王妃の代が積み重なる長い時代</div>
+      <div class="event-body"><ul>
+        <li>武闘大会が繰り返され、王妃の代が積み重なる</li>
+        <li>3国（東・中央・西）の関係が築かれていく</li>
+        <li>この間、王族から聖女（同調魔法持ち）はほとんど現れなかった</li>
+        <li>この時代の詳細は未設定</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-political">
+      <div class="event-time">近代（詳細未設定）</div>
+      <div class="event-title">先王（黒幕）の台頭</div>
+      <div class="event-body"><ul>
+        <li>現在50歳前後の先王が王室の最上位に位置するようになる</li>
+        <li>王妃たちが戦場に出ている間の政務空白を埋め、実権を蓄積</li>
+        <li>王妃会議が名目上の最高権力、先王が裏の実権という二重構造が固まる</li>
+      </ul></div>
+    </div>
+
+  </div>
+
+  <!-- ===== 現代・主人公誕生前後 ===== -->
+  <div class="era-header"><span>■ 現代（直近の出来事）</span></div>
+  <div class="timeline">
+
+    <div class="event cat-character">
+      <div class="event-time">現在より約17〜18年前</div>
+      <div class="event-title">主人公の母、南の辺境伯家に生まれる</div>
+      <div class="event-body"><ul>
+        <li>東の国・南の辺境伯の令嬢として誕生</li>
+        <li>風魔法の使い手。主魔石が古代5系統均衡発現構造で同調魔法の適性を持つが自覚はない</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-saint">
+      <div class="event-time">母が10歳頃</div>
+      <div class="event-title">「声」が聞こえ始める</div>
+      <div class="event-body"><ul>
+        <li>誰かに話しかけられるような感覚が始まる。気のせいだと思い誰にも話さない</li>
+        <li>実際は転生前の主人公の魂が接触していた</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-character">
+      <div class="event-time">母が10〜15歳</div>
+      <div class="event-title">母、貴族学院に在籍</div>
+      <div class="event-body"><ul>
+        <li>王都の貴族学院で魔法・剣術・学問を修める</li>
+        <li>在籍中も「声」は続き、しだいに明確な会話になっていく</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-character">
+      <div class="event-time">現在より約2〜3年前　母が16歳</div>
+      <div class="event-title">母、卒業・帰郷</div>
+      <div class="event-body"><ul>
+        <li>卒業後、南の辺境伯家に帰郷</li>
+        <li>「声」との対話がより明確になり、本格的な会話が始まる</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-military">
+      <div class="event-time">帰郷直後　母が16歳</div>
+      <div class="event-title">南からのスタンピード発生（S級魔物）</div>
+      <div class="event-body"><ul>
+        <li>南からS級魔物が出現。追われた多数の魔物が北へ流入</li>
+        <li>母が帰郷直後に防衛戦に参加</li>
+        <li>「声」（主人公）から作戦提案を受ける</li>
+        <li>同調魔法で逃げてきた竜種と対話し、協力関係を築く</li>
+        <li>人間部隊＋竜連合でS級魔物を討伐。竜の多くが戦闘で死亡、数匹が生き残る</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-political">
+      <div class="event-time">スタンピード後　母が16〜17歳頃</div>
+      <div class="event-title">母、功績により王妃に就任</div>
+      <div class="event-body"><ul>
+        <li>異例の功績枠での王妃就任（武闘大会優勝ではない）</li>
+        <li>南の辺境出身のため、王都貴族社会では外様的立場</li>
+        <li>実家には生き残った竜たちが今も留まり、領地を守る</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-saint">
+      <div class="event-time">現在より約1年前</div>
+      <div class="event-title">主人公、誕生 ── 聖女発覚</div>
+      <div class="event-body"><ul>
+        <li>前世の記憶を持ったまま女性の身体で誕生（転生）</li>
+        <li>出産時、無意識の同調魔法で母の傷を回復 → 聖女と発覚</li>
+        <li>無意識の念話で母に話しかける。母は「あの声だ」と確信</li>
+        <li>母が周囲に悟られないよう念話で秘密裏に会話を継続</li>
+        <li>前世の知識を活かし、0歳から言語・世界観を急速に吸収</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-military">
+      <div class="event-time">主人公0〜1歳（現在進行中）<span class="badge badge-story">第1巻</span></div>
+      <div class="event-title">暗殺未遂事件</div>
+      <div class="event-body"><ul>
+        <li>主人公の聖女発覚が王室の権力構造を脅かす</li>
+        <li>黒幕：先王（50歳・王室最上位）が排除を冷静に決断</li>
+        <li>実行犯：王室内の王子（先王の息子） <span class="badge badge-unconfirmed">詳細未設定</span></li>
+        <li>主人公と母が念話で連携し、暗殺を防ぐ</li>
+      </ul></div>
+    </div>
+
+    <div class="event cat-military">
+      <div class="event-time">現在（予兆）</div>
+      <div class="event-title">第三次スタンピード ── 予兆</div>
+      <div class="event-body"><ul>
+        <li>感知系魔力使いが魔脈の異常活性化を観測中</li>
+        <li>過去2回を超える規模になる可能性を示す兆候あり</li>
+        <li>3国が対応を迫られる状況に近づいている</li>
+      </ul></div>
+    </div>
+
+  </div>
+
+  <!-- 追記スペース -->
+  <div class="era-header" style="margin-top:60px"><span>── 追記予定 ──</span></div>
+  <div class="add-area">
+    各国の正式名称・首都 ／ 古代竜との取り決め詳細 ／ 先王の名前・称号<br>
+    主人公・母の名前 ／ 第1巻以降の展開<br>
+    が決まり次第、このファイルに追記してください。
+  </div>
+
+</div><!-- /container -->
+
+<footer>東の国 年表 ── ファンタジー小説プロジェクト設定資料　建国から約500年・人類史5000年</footer>
+
+</body>
+</html>

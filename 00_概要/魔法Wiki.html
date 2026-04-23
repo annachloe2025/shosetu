@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>魔法Wiki — ファンタジー小説世界設定</title>
+<style>
+  :root {
+    --bg: #0a0b1a;
+    --bg2: #12132a;
+    --surface: #1a1c38;
+    --surface2: #23254a;
+    --text: #e6e8f5;
+    --muted: #8d92b5;
+    --border: #2e3256;
+    --accent: #a78bfa;
+    --accent2: #7eb6ff;
+    --earth: #6ee7a5;
+    --water: #7eb6ff;
+    --fire: #ff8486;
+    --wind: #ffd84a;
+    --reso: #f5f7ff;
+    --cat-principle: #a78bfa;
+    --cat-heredity: #f472b6;
+    --cat-measure: #fbbf24;
+    --cat-device: #60a5fa;
+    --cat-special: #f5f7ff;
+    --cat-inorg: #6ee7a5;
+    --cat-org: #b08968;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "游ゴシック", "Yu Gothic", "Hiragino Sans", "メイリオ", Meiryo, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* Topbar */
+  .topbar {
+    height: 56px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .topbar .logo {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, #a78bfa, #7eb6ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .topbar .sep { color: var(--muted); font-size: 12px; }
+  .topbar .subtitle { color: var(--muted); font-size: 13px; }
+  .topbar .spacer { flex: 1; }
+  .topbar input[type="search"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    width: 260px;
+    font-family: inherit;
+  }
+  .topbar input[type="search"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .topbar button.home-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .topbar button.home-btn:hover { border-color: var(--accent); color: var(--accent); }
+  /* Layout */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  aside.sidebar {
+    width: 280px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 0;
+    flex-shrink: 0;
+  }
+  aside.sidebar h3 {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    padding: 14px 20px 6px;
+    text-transform: uppercase;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  aside.sidebar h3:first-child { border-top: none; margin-top: 0; }
+  aside.sidebar ul { list-style: none; }
+  aside.sidebar li a {
+    display: block;
+    padding: 7px 20px 7px 30px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  aside.sidebar li a:hover {
+    background: var(--surface);
+    border-left-color: var(--accent);
+  }
+  aside.sidebar li a.active {
+    background: var(--surface2);
+    border-left-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  aside.sidebar li a.hidden { display: none; }
+  /* Main */
+  main.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 60px;
+  }
+  main.content .page { display: none; max-width: 900px; margin: 0 auto; }
+  main.content .page.active { display: block; }
+  .crumb {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .crumb .cat {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-right: 8px;
+    color: var(--accent);
+  }
+  main.content h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+  }
+  main.content h2 {
+    font-size: 17px;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  main.content h2::before {
+    content: "● ";
+    color: var(--accent2);
+  }
+  .summary {
+    font-size: 17px;
+    color: var(--text);
+    padding: 16px 20px;
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    margin: 20px 0 10px;
+  }
+  .list { list-style: none; }
+  .list li {
+    padding: 8px 0 8px 24px;
+    position: relative;
+    font-size: 15px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .list li::before {
+    content: "▸";
+    position: absolute;
+    left: 4px;
+    color: var(--accent);
+  }
+  .list li:last-child { border-bottom: none; }
+  .numbers { list-style: none; }
+  .numbers li {
+    padding: 6px 0 6px 28px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text);
+    font-family: "Menlo", "Consolas", monospace;
+  }
+  .numbers li::before {
+    content: "◆";
+    position: absolute;
+    left: 8px;
+    color: var(--wind);
+    font-size: 10px;
+  }
+  .related-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .related-chips a {
+    display: inline-block;
+    padding: 5px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .related-chips a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--surface2);
+  }
+  .source-link {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .source-link a { color: var(--accent); text-decoration: none; }
+  .source-link a:hover { text-decoration: underline; }
+
+  /* Home page */
+  .hero {
+    text-align: center;
+    padding: 40px 0 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+  }
+  .hero .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    border: none;
+    background: linear-gradient(90deg, #a78bfa, #7eb6ff, #6ee7a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 14px;
+  }
+  /* Pillars */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .pillar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 16px;
+    border-radius: 8px;
+  }
+  .pillar h3 { font-size: 13px; color: var(--accent); margin-bottom: 6px; }
+  .pillar p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  /* Category grid */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 30px 0;
+  }
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    padding: 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .cat-card:hover { transform: translateY(-2px); }
+  .cat-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    margin-top: 0;
+    color: inherit;
+  }
+  .cat-card h3::before { content: ""; }
+  .cat-card p { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .cat-card ul {
+    list-style: none;
+    font-size: 12px;
+  }
+  .cat-card ul li {
+    padding: 2px 0;
+    color: var(--text);
+    border: none;
+  }
+  .cat-card ul li::before { content: ""; }
+  .cat-card.principle { border-left-color: var(--cat-principle); }
+  .cat-card.principle h3 { color: var(--cat-principle); }
+  .cat-card.heredity { border-left-color: var(--cat-heredity); }
+  .cat-card.heredity h3 { color: var(--cat-heredity); }
+  .cat-card.measure { border-left-color: var(--cat-measure); }
+  .cat-card.measure h3 { color: var(--cat-measure); }
+  .cat-card.device { border-left-color: var(--cat-device); }
+  .cat-card.device h3 { color: var(--cat-device); }
+  .cat-card.special { border-left-color: var(--cat-special); }
+  .cat-card.special h3 { color: var(--cat-special); }
+  .cat-card.inorg { border-left-color: var(--cat-inorg); }
+  .cat-card.inorg h3 { color: var(--cat-inorg); }
+  .cat-card.org { border-left-color: var(--cat-org); }
+  .cat-card.org h3 { color: var(--cat-org); }
+  /* No-result message */
+  .noresult {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    font-size: 14px;
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+  /* Responsive */
+  @media (max-width: 768px) {
+    aside.sidebar { width: 220px; }
+    main.content { padding: 20px; }
+    .hero h1 { font-size: 28px; }
+    .topbar input[type="search"] { width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="logo">⚗ MAGIC WIKI</span>
+  <span class="sep">|</span>
+  <span class="subtitle">ファンタジー小説世界設定</span>
+  <span class="spacer"></span>
+  <input type="search" id="search" placeholder="🔍 検索（例：副魔石、飛行、同調…）">
+  <button class="home-btn" onclick="nav('home')">🏠 ダッシュボード</button>
+</header>
+
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+  <ul id="nav-list"></ul>
+</aside>
+
+<main class="content" id="content"></main>
+
+</div>
+
+<script>
+// ============================================================
+// Page Data
+// ============================================================
+const PAGES = {
+  // ========= 基本原則 =========
+  'magicstone': {
+    title: '魔石の仕組み',
+    category: '基本原則',
+    path: '01_魔力システム/魔石の仕組み.md',
+    summary: '魔石＝マーキング装置＋魔力タンク＋回路媒体の三機能を持つ器官。古代5系統生物の原始魔石が進化したもの。',
+    highlights: [
+      '主魔石は全個体所持。マーキング・貯蔵・回路の中枢',
+      '副魔石は女性のみ保持。10歳前後で自前形成される',
+      '副魔石は5系統遺伝情報の濃縮器官（器官そのものは継承されない）',
+      '回路は物理溝ではなくエネルギーパターン。発光させても解読不可',
+      '生きている間は遺伝子と魔石が連動して回路維持、死後は素の器に戻る',
+      '死後魔石に魔法を繰り返し流せば回路刻印可能 → 術式石の原理'
+    ],
+    numbers: [
+      'マーキング有効時間：数時間〜半日',
+      '魔石の3機能：マーキング装置／魔力タンク／回路媒体',
+      '副魔石形成時期：10歳前後（思春期）',
+      '魔石色＝属性遺伝子による結晶構造差'
+    ],
+    related: ['molecules', 'origin', 'circuit', 'formula']
+  },
+  'molecules': {
+    title: '魔力分子とマーキング',
+    category: '基本原則',
+    path: '01_魔力システム/魔力分子とマーキング.md',
+    summary: '大気・水・土壌に遍在する魔力分子に、主魔石が個人印を刻む仕組み。マーキング済み分子だけが術者の意志で動く。',
+    highlights: [
+      '魔力分子は分子サイズで大気・水・土壌・生体に遍在',
+      '呼吸・飲食で体内に流入し、主魔石を通過してマーキング',
+      'マーキング済み分子のみが術者の意志で操作可能',
+      'マーキングは個体固有・排他的・数時間で自然消失',
+      '同調魔法使いのみ他者の分子とも共鳴可能',
+      '魔力分子はエネルギー源ではなく物理エネルギーの媒介'
+    ],
+    numbers: [
+      '1 MU = 1 kJ = 1000 J',
+      '惑星総量は保存則で一定（循環する）',
+      '無魔人の展開範囲：体表密着〜30 cm',
+      'マーキング有効：数時間〜半日'
+    ],
+    related: ['magicstone', 'cycle', 'manipulation', 'physics', 'origin']
+  },
+  'manipulation': {
+    title: '操作系魔法の統一原理',
+    category: '基本原則',
+    path: '01_魔力システム/操作系魔法の統一原理.md',
+    summary: '属性魔法（旧：操作系）は「馴染ませ＋意志で動かす」の統一原理で動く。創造は不可、操作・変換のみ。',
+    highlights: [
+      '魔法は創造不可、操作・変換のみ（無から有は作れない）',
+      '対象に魔力分子を浸透させる「馴染ませ」が前提',
+      '馴染ませ後は意志で分子経由に物理操作',
+      '無機物は結晶・分子構造経由、有機物は繊維・細胞経由',
+      '固体ほど馴染ませ時間が長い（液体・気体は速い）',
+      '生体は魔力反発で操作不可（死後に反発が消える）'
+    ],
+    numbers: [
+      '馴染ませ：小礫 1〜2秒',
+      '馴染ませ：拳大石 20〜30秒',
+      '馴染ませ：大石 数時間',
+      '液体・気体：数秒〜数十秒'
+    ],
+    related: ['molecules', 'physics', 'cost', 'earth', 'water']
+  },
+  'physics': {
+    title: '物理コスト原理',
+    category: '基本原則',
+    path: '01_魔力システム/物理コスト原理.md',
+    summary: '魔法コストは現実物理式から直接計算される。1 MU = 1 kJ の物理準拠体系。',
+    highlights: [
+      '1 MU = 1 kJ = 1000 J（物理準拠）',
+      '運動 (1/2)Mv²、熱 mcΔT、相転移 mL、位置 mgh、化学結合',
+      '馴染ませ自体にも維持コストがかかる',
+      '効率補正：熟練者は0.5〜0.8倍で発動可能'
+    ],
+    numbers: [
+      '1 MU = 1 kJ',
+      '水比熱 4186 J/(kg·K)',
+      '水融解潜熱 334 kJ/kg',
+      '水蒸発潜熱 2260 kJ/kg',
+      '鉄比熱 450 J/(kg·K)',
+      '人体比熱 3500 J/(kg·K)',
+      '魔力分子比熱 4000 J/(kg·K)'
+    ],
+    related: ['scale', 'cost', 'molecules', 'manipulation']
+  },
+  'cost': {
+    title: '消費とコスト',
+    category: '基本原則',
+    path: '01_魔力システム/消費とコスト.md',
+    summary: '具体的な魔法行為ごとのMUコスト表と回復ルール。同じ効果を物理で達成するエネルギーと同オーダー。',
+    highlights: [
+      '基礎コスト＝馴染ませ＋物理変換＋維持',
+      '一晩の睡眠でほぼ全量回復（健康上の問題なし）',
+      '枯渇後の酷使で主魔石にひび（戦場限定）',
+      '副魔石破損は最重禁忌・戦争犯罪扱い',
+      '同じ効果を物理で達成するエネルギーと同オーダー',
+      '熟練で効率改善、未習得は数倍コスト'
+    ],
+    numbers: [
+      '火魔法銃 20〜50 MU/発',
+      '氷槍 335 MU/発（潜熱由来）',
+      '石礫投擲 1 MU/発',
+      '飛行巡航 700〜1,850 MU/時間',
+      '火灯の術 0.01〜0.05 MU',
+      '密着型魔防壁 15〜250 MU/時間',
+      '拡張型魔防壁 80〜800 MU/時間',
+      '翼型魔防壁（飛行用）500〜1,500 MU/時間'
+    ],
+    related: ['scale', 'physics', 'human', 'manipulation']
+  },
+  'cycle': {
+    title: '魔力循環',
+    category: '基本原則',
+    path: '01_魔力システム/魔力循環.md',
+    summary: '惑星規模の魔力分子循環。魔泉から噴出、大気・地脈・生体を経て還る。禁域とスタンピードの根拠。',
+    highlights: [
+      '魔力分子は大気・地脈・生体を循環し総量保存',
+      '魔泉＝地下魔力濃度の異常噴出地点、周辺は濃度高',
+      '禁域＝魔泉周辺の高濃度地帯で魔物が濃縮進化',
+      '魔泉は地殻変動で位置が移動する（数百年周期）',
+      'スタンピード＝魔泉移動や環境変動で魔物が禁域から溢出する現象',
+      'マーキングは数時間で消え、分子は大気・地脈に還る'
+    ],
+    numbers: [
+      '惑星総魔力量：保存（創出・消滅なし）',
+      '魔泉の移動周期：数百年単位',
+      'マーキング消失：数時間〜半日'
+    ],
+    related: ['molecules', 'magicstone']
+  },
+
+  // ========= 遺伝と属性 =========
+  'origin': {
+    title: '属性の遺伝起源',
+    category: '遺伝と属性',
+    path: '01_魔力システム/属性の遺伝起源.md',
+    summary: '4大属性＋同調の由来は古代5系統生物の遺伝子プール。現代種は全員が5系統すべての遺伝情報を持つ。',
+    highlights: [
+      '古代5系統：地中(土)／水棲(水)／火山(火)／空中(風)／群体(同調基盤)',
+      '5系統の交配遺伝子が全現代種に組み込まれている',
+      '現代個体は通常1〜2属性に絞られて発現（安定化の進化選択）',
+      '雷・氷は亜系統の変異発現、光闇はほぼ記録なし',
+      '副魔石は5系統遺伝情報の濃縮器官。出産時に子の主魔石の種へ情報のみ転写',
+      '副魔石という器官自体は継承されない（物体ではなく情報のみ）',
+      '父親の遺伝子は精子経由で妻の副魔石に届き孫世代へ'
+    ],
+    numbers: [
+      '古代5系統：5（地中・水棲・火山・空中・群体）',
+      '同調魔法使い：世界全体で同世代2〜5人',
+      '自前副魔石形成：女性で10歳前後',
+      '無魔人×無魔人から魔石持ち：1%未満'
+    ],
+    related: ['magicstone', 'systems', 'haircolor', 'resonance', 'circuit']
+  },
+  'haircolor': {
+    title: '髪色と魔力属性',
+    category: '遺伝と属性',
+    path: '01_魔力システム/髪色と魔力属性.md',
+    summary: '属性遺伝子と色素遺伝子の染色体近接による連鎖遺伝で、髪色と属性が対応する。',
+    highlights: [
+      '火＝赤、水＝青、土＝黄、風＝緑、同調＝白（全混合）、無属性＝黒',
+      '属性遺伝子と色素遺伝子は染色体上で近接 → 連鎖遺伝',
+      '有機魔法は髪色に出ない（4大属性と別系統）',
+      '2属性持ちはグラデーション・斑・メッシュで表現',
+      '隔世遺伝で祖先の属性髪色が蘇る現象あり'
+    ],
+    numbers: [
+      '基本色：5種＋無属性黒の6分類',
+      '複属性：火土(朱/銅)、水風(青緑)、火水(紫) 等',
+      '同調魔法使いの髪：白〜銀'
+    ],
+    related: ['origin', 'magicstone', 'systems', 'resonance']
+  },
+  'systems': {
+    title: '4系統と適性',
+    category: '遺伝と属性',
+    path: '01_魔力システム/4系統と適性.md',
+    summary: '属性魔法(4属性)と無属性魔法(強化系・感知系)の2軸分類。',
+    highlights: [
+      '属性魔法＝火水土風の4属性(先天)',
+      '無属性魔法＝強化系・感知系(全員習得可)',
+      '属性と無属性は独立した別軸、組み合わせで多様な職能',
+      '感知系でも魔石内部の回路解読は原理的に不可能',
+      '感知できるのは魔石の有無・おおよその魔力量・全体色味のみ',
+      '系統適性判定は実地試験のみ（触ってみる・やってみる）'
+    ],
+    numbers: [
+      '属性数：4（＋派生の雷・氷）',
+      '系統数：属性魔法1種＋無属性魔法2系統(強化・感知)',
+      '感知可能情報：有無／量／色 の3種'
+    ],
+    related: ['origin', 'magicstone', 'circuit', 'enhancement', 'perception']
+  },
+  'circuit': {
+    title: '魔力回路と適性継承',
+    category: '遺伝と属性',
+    path: '01_魔力システム/魔力回路と適性継承.md',
+    summary: '魔石に刻まれる回路が世代継承され家系的素質を生む仕組み。母の副魔石経由で情報が転写される。',
+    highlights: [
+      '魔力回路＝魔法使用で魔石に刻まれる魔力流路パターン',
+      '主適性あり：回路定着が速い／なし：数倍〜数十倍の訓練時間',
+      '母の副魔石は主魔石から回路パターンをバッファ、出産時に一部転写',
+      '父親の回路は直接継承されない',
+      '世代蓄積で「魔法の名家」が成立、ただし練習しなければ発現しない',
+      '隔世遺伝＝3〜5世代前の深い回路の濃い転写による先祖回帰',
+      '系統適性の鑑定は原理的に不可能'
+    ],
+    numbers: [
+      '継承される割合：全回路の1/3〜1/2程度',
+      '隔世遺伝の遡及：通常3〜5世代',
+      '適性なしの習得時間：適性ありの数倍〜数十倍'
+    ],
+    related: ['magicstone', 'molecules', 'origin', 'systems', 'haircolor']
+  },
+
+  // ========= 魔力の計測 =========
+  'scale': {
+    title: '魔力スケール',
+    category: '魔力の計測',
+    path: '01_魔力システム/魔力スケール.md',
+    summary: 'MU単位系で人間・魔物・魔法・魔道具の魔力を統一スケーリング。1 MU = 1 kJ の物理準拠。',
+    highlights: [
+      '1 MU = 1 kJ（物理準拠・旧火灯1回基準から改訂）',
+      '6歳→成人で魔力量×20〜50倍成長（副魔石成長込みで女性さらに2倍）',
+      '魔物ランクは10倍刻み、F=300からA=3,000万MU',
+      '魔石容量≠戦闘力（技能・武具・戦術で数倍差）',
+      '1日使用：日常5-15%、戦闘30-60%、全力80-100%、超過で魔石にひび',
+      '充電業は持続可能ペース（5-15%）が標準'
+    ],
+    numbers: [
+      '平民 男 2,000〜5,000 MU',
+      '平民 女 4,000〜10,000 MU',
+      '魔物F=300、E=3,000、D=3万',
+      '魔物C=30万、B=300万、A=3,000万',
+      '王都大循環機構 約5万 MU/日',
+      '王都照明塔網 約3万 MU/日（1塔500）',
+      '感知の塔 約10万 MU/日'
+    ],
+    related: ['human', 'physics', 'cost', 'largedevice']
+  },
+  'exam': {
+    title: '魔力検査',
+    category: '魔力の計測',
+    path: '01_魔力システム/魔力検査.md',
+    summary: '6歳での公式検査。7段階判定で魔力量と4大属性のみ判定可能、系統適性は実技で判定。',
+    highlights: [
+      '6歳時点で全員検査、神殿または役所が実施',
+      '判定は魔力量（段階1〜7）＋4大属性の有無',
+      '系統適性(属性魔法/強化系/感知系)は実技でしか判定できない',
+      '段階4＝平民標準、段階6＝下級貴族相当、段階7＝魔石破壊リスク',
+      '女性の副魔石が未成熟なため男女差は検査時点では微小',
+      '段階8以上は検査器で計測不能（上級貴族は別途実地判定）'
+    ],
+    numbers: [
+      '段階4＝100 MU（平民中央値）',
+      '段階5＝300 MU',
+      '段階6＝1,000 MU（下級貴族）',
+      '段階7＝3,000 MU',
+      '段階8＝10,000 MU（上級貴族相当）',
+      '段階9以上＝30,000 MU〜'
+    ],
+    related: ['human', 'scale', 'systems', 'magicstone']
+  },
+  'human': {
+    title: '人間の魔力量',
+    category: '魔力の計測',
+    path: '01_魔力システム/人間の魔力量.md',
+    summary: '身分別魔力量分布と無魔人の起源・残存能力。主魔石の有無で運用能力に100倍差。',
+    highlights: [
+      '全人間が魔力分子を循環、主魔石の有無で運用能力に100倍差',
+      '女性は副魔石分で男性の約2倍（思春期以降顕在化）',
+      '無魔人は主魔石破壊された祖先の子孫、体組織全体の弱いマーキング残存',
+      '無魔人も微量の魔法発動・術式石起動は可能（数人がかり）',
+      '経産婦は出産ごとに主魔石が成長する',
+      '無魔人は出産間隔制約がなく人口急増、多数派となった'
+    ],
+    numbers: [
+      '無魔人：男 20-50 ／ 女 40-100 MU',
+      '平民魔石持ち：男 2,000-5,000 ／ 女 4,000-10,000 MU',
+      '中級騎士・下級貴族：男 2-5万 ／ 女 4-10万 MU',
+      '上級貴族：男 20-50万 ／ 女 40-100万 MU',
+      '公爵王族：男 200-500万 ／ 女 400-1,000万 MU',
+      '魔石持ち人口比：5-8%（Lux 6%／Dom 5%／Con 8%）',
+      '回復：1晩でほぼ全回復'
+    ],
+    related: ['scale', 'magicstone', 'cost', 'molecules']
+  },
+
+  // ========= 術式と魔道具 =========
+  'formula': {
+    title: '術式の仕組み',
+    category: '術式と魔道具',
+    path: '02_魔石と術式/術式の仕組み.md',
+    summary: '死後魔石への繰り返し魔法流入で回路を刻む仕組み。術式石は術式を持つ魔石単体。',
+    highlights: [
+      '術式＝魔石に刻まれた魔術パターン（情報）',
+      '術式石＝術式を持つ魔石単体（モノ）',
+      '魔道具＝術式石＋筐体＋触媒の装置全体（システム）',
+      '転写には熟練術式師の精密な魔力操作が必要',
+      '充電は対応属性の魔法使いが魔力を注ぐ',
+      '無魔人は術式石の起動は可能だが充電・精密操作は不可',
+      '魔物魔石由来の等級（F〜A）が術式石の容量を規定'
+    ],
+    numbers: [
+      'F級術式石＝個人携帯品（300 MU）',
+      'C級＝町規模（30万 MU）',
+      'B級＝鍛冶炉・都市級魔道具（300万 MU）',
+      'A級＝国家戦略級（3,000万 MU）',
+      '転写工数：単純術式で数日、複雑術式で数ヶ月'
+    ],
+    related: ['magicstone', 'largedevice', 'scale', 'circuit']
+  },
+  'largedevice': {
+    title: '大型魔道具',
+    category: '術式と魔道具',
+    path: '02_魔石と術式/大型魔道具.md',
+    summary: '国家・都市規模で運用される固定設置型魔道具の総覧。王都ルメリアを基準に設計。',
+    highlights: [
+      '王都大循環機構：B級水属性＋C級複数で上下水道',
+      '照明塔網：C級火属性、主要街区数十〜百本',
+      '通信塔：B級風＋感知系、1日数回短文のみ',
+      '感知の塔：A級感知系、数十km先の魔物群検知',
+      '大型魔道具設計師は全国数十名、修業20年以上の希少職'
+    ],
+    numbers: [
+      '大循環機構 約5万 MU/日',
+      '照明塔1本 約500 MU/日、全網3万 MU/日',
+      '通信塔 約1万 MU/日',
+      '王立鍛冶炉 操業時2万 MU/日',
+      '感知の塔 約10万 MU/日、範囲数十km'
+    ],
+    related: ['formula', 'scale', 'magicstone', 'perception']
+  },
+
+  // ========= 特殊魔法 =========
+  'resonance': {
+    title: '同調魔法',
+    category: '特殊魔法',
+    path: '03_特殊魔法/同調魔法.md',
+    summary: '他者魔石との双方向接続による超稀少能力、通称「聖属性魔法」。属性ではなく主魔石構造由来。',
+    highlights: [
+      '属性ではない。主魔石の特殊構造由来（古代5系統均衡発現）',
+      '世界観上「聖属性魔法」と誤解されているが実態は違う',
+      '3能力：回復治癒・念話通信・他者属性借用',
+      '消費は自分の魔力、重傷ほど消費大',
+      '血統遺伝ではなくほぼランダム発現（王室制度は誤解の上に成立）',
+      '聖女力の強さは本人の魔力量に依存（血統でなく個人魔力）',
+      '平民聖女も存在するが魔力弱で見過ごされる',
+      '王室制度は「強魔力女性を集める」効果で偶然機能'
+    ],
+    numbers: [
+      '同世代2〜5人（世界全体）',
+      '数百年に1人の時代もあった',
+      '最重禁忌：強制同調（他者魔力への無断侵入）',
+      '複数同時同調は消費が乗算的増大'
+    ],
+    related: ['protagonist', 'photograph', 'visualization', 'telepathy', 'memory', 'origin']
+  },
+  'protagonist': {
+    title: '主人公魔法',
+    category: '特殊魔法',
+    path: '03_特殊魔法/主人公魔法.md',
+    summary: '主人公特有の同調魔法応用＝魔法コンピュータ的運用。前世の情報技術知識を魔石運用に適用。',
+    highlights: [
+      '前世の情報技術知識を魔石運用に適用した独自体系',
+      '6段階構築：念写 → 念視 → 魔石記憶 → プログラミング → ネットワーク → サーバー',
+      '同調魔法が基盤、既存の聖女像と異なる応用方向',
+      '魔石を情報ストレージ・演算素子として扱う',
+      '大規模連携で国家インフラレベルの情報通信可能',
+      '本人も自分の能力の真の起源を知らない可能性'
+    ],
+    numbers: [
+      '6ステップ体系',
+      '魔石記憶容量は魔石等級に比例',
+      '同時接続は本人の魔力量に制限される'
+    ],
+    related: ['resonance', 'photograph', 'visualization', 'telepathy', 'memory']
+  },
+  'photograph': {
+    title: '念写魔法',
+    category: '特殊魔法',
+    path: '03_特殊魔法/念写魔法.md',
+    summary: '記憶・イメージを他者魔石または媒体に転写する同調応用。主人公の情報伝達革命の基盤。',
+    highlights: [
+      '同調魔法の派生能力',
+      '自分の記憶・視覚イメージを魔石に書き込む',
+      '他者魔石への書き込みは相手の同意下で可能',
+      '書き込まれた情報は念視魔法で読み出せる',
+      '情報圧縮効率は術者の熟練度による',
+      '主人公はこの能力で情報伝達革命を起こす基盤'
+    ],
+    numbers: [
+      '1回の念写で画像数枚〜数十枚相当',
+      '消費は情報量に比例'
+    ],
+    related: ['resonance', 'visualization', 'memory', 'protagonist']
+  },
+  'visualization': {
+    title: '念視魔法',
+    category: '特殊魔法',
+    path: '03_特殊魔法/念視魔法.md',
+    summary: '魔石に書き込まれた情報を読み出す同調応用。念写された情報を魔石から読み取る。',
+    highlights: [
+      '念写された情報を魔石から読み取る',
+      '他者の記憶の直接閲覧も理論上可能（同意下）',
+      '無魔人の魔石持たない個体の記憶は読めない',
+      '魔石記憶と組み合わせて情報アーカイブ運用',
+      '読み取り中は術者の意識が対象情報に没入',
+      '複数情報の同時読み取りは消費が増大'
+    ],
+    numbers: [
+      '読み取り中の消費は維持コスト分',
+      '熟練者は高速スキャン可'
+    ],
+    related: ['photograph', 'memory', 'resonance', 'protagonist']
+  },
+  'telepathy': {
+    title: '念話魔法',
+    category: '特殊魔法',
+    path: '03_特殊魔法/念話魔法.md',
+    summary: '魔力振動に思考を乗せる同調派生の通信魔法。声なしで会話可能。',
+    highlights: [
+      '同調状態で魔力分子の振動に言語・感情を乗せる',
+      '声なしで会話可能（他人に聞こえない）',
+      '距離が遠いほど消費増大・通信不安定',
+      '複数人同時通信は消費乗算',
+      '深い同調では意図しない感情・イメージが漏れる',
+      '戦場指揮系統・伝令代替として軍事価値が極めて高い'
+    ],
+    numbers: [
+      '距離・人数に応じて消費増',
+      '近距離の1対1は中程度消費'
+    ],
+    related: ['resonance', 'protagonist', 'memory']
+  },
+  'memory': {
+    title: '魔石記憶',
+    category: '特殊魔法',
+    path: '03_特殊魔法/魔石記憶.md',
+    summary: '魔石を情報ストレージとして運用する主人公独自技法。念写で書き込み、念視で読み取る。',
+    highlights: [
+      '念写で書き込み、念視で読み取る情報保持',
+      '魔石等級により容量が決まる（F〜A級）',
+      '死後魔石も書き込み可能 ＝ 術式石と同原理',
+      '魔石記憶ネットワークで国家規模の情報共有を構想',
+      '通信塔の補完・代替として機能可能',
+      '主人公魔法体系の中核技術の一つ'
+    ],
+    numbers: [
+      '容量は魔石容量（MU）に比例',
+      '書き込み/読み取りは同調消費程度'
+    ],
+    related: ['photograph', 'visualization', 'resonance', 'protagonist', 'formula']
+  },
+
+  // ========= 生活魔法・無機 =========
+  'earth': {
+    title: '土魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/土魔法.md',
+    summary: '岩石・土壌の形状変換と結合制御。建築・採掘・農耕の基盤。',
+    highlights: [
+      '対象：土・砂・岩石・鉱物の無機物',
+      '馴染ませが必要（固体は時間がかかる）',
+      '創造不可、既存物質の形状・結合の操作のみ',
+      '建築・採掘・農耕で生活基盤を支える',
+      '戦闘では石礫投擲・地面変形・土壁生成',
+      '金属操作は高度技能（強化魔法との複合）'
+    ],
+    numbers: [
+      '石礫投擲 1 MU/発',
+      '土壁生成 数十 MU/m²',
+      '馴染ませ：小礫 1-2秒、拳大石 20-30秒、大石 数時間'
+    ],
+    related: ['manipulation', 'physics', 'water']
+  },
+  'water': {
+    title: '水魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/水魔法.md',
+    summary: '水分子の流動・相転移操作。上下水道・農業・料理の基盤。相転移コストは潜熱分がそのまま必要。',
+    highlights: [
+      '対象：水・氷・水蒸気の相転移と流動',
+      '馴染ませが短い（液体は数秒）',
+      '相転移コストは潜熱分がそのまま必要',
+      '上下水道・農業灌漑・洗浄・料理に多用',
+      '戦闘では氷槍・霧・高圧水流',
+      '浄化は不純物を分離する精密操作'
+    ],
+    numbers: [
+      '氷槍 335 MU/発（融解潜熱由来）',
+      '水蒸発 2260 kJ/kg',
+      '水1℃上昇 4186 J/kg',
+      '大循環機構 5万 MU/日'
+    ],
+    related: ['manipulation', 'physics', 'earth']
+  },
+  'fire': {
+    title: '火魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/火魔法.md',
+    summary: '分子励起による発熱・発火・燃焼制御。鍛冶・調理・照明・暖房の基盤。',
+    highlights: [
+      '対象：熱エネルギー・燃焼反応',
+      '可燃物の分子励起で着火、非可燃物は過熱のみ',
+      '鍛冶・調理・照明・暖房で日常不可欠',
+      '戦闘では火球・火炎放射・爆裂',
+      '酸素供給は風魔法との組み合わせが必要な場合あり',
+      '金属加熱は比熱が低く効率が良い'
+    ],
+    numbers: [
+      '火魔法銃 20〜50 MU/発',
+      '火灯の術 0.01〜0.05 MU',
+      '鉄比熱 450 J/(kg·K)',
+      '照明塔1本 500 MU/日',
+      '王立鍛冶炉 操業時 2万 MU/日'
+    ],
+    related: ['manipulation', 'physics', 'wind']
+  },
+  'wind': {
+    title: '風魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/風魔法.md',
+    summary: '気流・気圧操作。通信・乾燥・飛行の要。馴染ませが最速（気体は瞬時）。',
+    highlights: [
+      '対象：気流・気圧・自由気体',
+      '馴染ませが最速（気体は瞬時）',
+      '乾燥・送風・通信・運搬に使用',
+      '風通信士の音声伝達は風＋感知系の複合希少技能',
+      '飛行は消費が極大、長距離は不現実的',
+      '戦闘では風刃・気流操作・盾'
+    ],
+    numbers: [
+      '飛行巡航 700〜1,850 MU/時間',
+      '通信塔 約1万 MU/日',
+      '乾燥は対象水分量×2260 kJ/kg'
+    ],
+    related: ['manipulation', 'physics', 'fire', 'perception']
+  },
+  'enhancement': {
+    title: '強化系魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/強化系魔法.md',
+    summary: '身体・武具への魔力浸透による性能強化。騎士の主力技能、属性と独立した技能軸。',
+    highlights: [
+      '無属性魔法の一系統、属性と独立した技能軸',
+      '自己身体への馴染ませで筋力・反射・知覚強化',
+      '武具強化は斬撃・硬度・耐久性向上',
+      '属性魔法と組み合わせて火剣・氷剣など',
+      '騎士の主力技能、継続使用の維持コスト',
+      '体外展開型の広域強化（仲間装備）は高度技能'
+    ],
+    numbers: [
+      '身体強化 数MU/分維持',
+      '武器強化 数十MU/戦闘',
+      '術式石武器で効率数倍向上'
+    ],
+    related: ['systems', 'manipulation', 'physics']
+  },
+  'perception': {
+    title: '感知系魔法',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/感知系魔法.md',
+    summary: '外部魔力の一方向観測。鑑定・探査の技能。感知の塔は数十km先の魔物群を察知。',
+    highlights: [
+      '無属性魔法の一系統、外部魔力流を読み取る受動的能力',
+      '魔石の有無・おおよその魔力量・全体色味のみ検知',
+      '系統適性や回路内容の鑑定は原理的に不可能',
+      '感知の塔は数十km先の魔物群を察知',
+      '風通信士は風＋感知の希少複合技能',
+      '同調魔法は感知と根本的に異なる（双方向接続）'
+    ],
+    numbers: [
+      '感知の塔 10万 MU/日、範囲数十km',
+      '個人感知範囲 数m〜数十m',
+      '感知柱（D級）街道設置'
+    ],
+    related: ['systems', 'resonance', 'largedevice', 'magicstone']
+  },
+  'potion': {
+    title: '薬草とポーション',
+    category: '生活魔法・無機',
+    path: '04_生活魔法/薬草とポーション.md',
+    summary: '薬草の魔力的性質を利用する錬薬技術。有機魔法の薬師系と密接に関連。',
+    highlights: [
+      '薬草には魔力分子との親和性がある',
+      'ポーションは薬草の魔力を液体に溶出・凝縮したもの',
+      '回復薬は強化系と組み合わせて傷の自己治癒を加速',
+      '魔物素材は禁域由来で高価値・高リスク',
+      '有機魔法の薬師系と密接に関連',
+      '錬薬は火魔法（煎じ）と感知系（魔力見極め）が必要'
+    ],
+    numbers: [
+      '一般回復薬 数百MU相当の魔力含有',
+      '高級ポーション 数千〜数万MU相当',
+      '禁域素材は等級に応じ数倍'
+    ],
+    related: ['organic-apothecary', 'perception', 'fire', 'organic-overview']
+  },
+
+  // ========= 生活魔法・有機 =========
+  'organic-overview': {
+    title: '有機魔法（概要）',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/00_有機魔法_概要.md',
+    summary: '死んだ有機物を操作する魔法体系。髪色に出ない別軸で、6専門分野に分化。',
+    highlights: [
+      '対象：死んだ有機物全般（木・皮・骨・肉・繊維）',
+      '生体反発：生きている生物は操作不可、死後に反発が薄れる',
+      '髪色に現れない ＝ 外見から適性判別不可、実力主義職種に',
+      '回路の世代遺伝はあり（家系的有利）',
+      '6専門：木工・織物・なめし・骨細工・薬師・調理',
+      '無機系との組合せで真価（建築・武具・保存食）',
+      '戦闘では後方支援・装備維持が主'
+    ],
+    numbers: [
+      '6つの専門分野',
+      '生体反発：生前強・死後数時間でほぼ消失・完全乾燥で最小',
+      '馴染ませは有機物で比較的短い（多孔質）'
+    ],
+    related: ['organic-wood', 'organic-textile', 'organic-leather', 'organic-bone', 'organic-apothecary', 'organic-cooking']
+  },
+  'organic-wood': {
+    title: '木工系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/木工系魔法.md',
+    summary: '木材・樹皮・竹の加工。大工と家具師の主力技能。建築は土魔法との複合が基本。',
+    highlights: [
+      '対象：伐採木・乾燥木材・竹・樹皮',
+      '硬化・乾燥・曲げ・接合の操作',
+      '生木は反発が残り効率低下',
+      '建築は土魔法との複合が基本',
+      '製紙は水魔法との複合',
+      '家具・船舶・武器の柄・弓矢などに使用'
+    ],
+    numbers: [
+      '乾燥：水分量×2260 kJ/kg',
+      '硬化：数十 MU/m³',
+      '伐採直後は効率低下'
+    ],
+    related: ['organic-overview', 'earth', 'water', 'wind']
+  },
+  'organic-textile': {
+    title: '織物系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/織物系魔法.md',
+    summary: '植物繊維・羊毛・獣毛の加工。織物師の主力技能。乾燥は風魔法との複合。',
+    highlights: [
+      '対象：麻・綿・絹・羊毛・獣毛',
+      '繊維の配列・撚り・織り・染色の操作',
+      '乾燥は風魔法との複合',
+      '縄・布・衣服・帆布の製造',
+      '熟練は一反数時間で織り上げられる',
+      '織物ギルドが品質管理'
+    ],
+    numbers: [
+      '乾燥コスト 2260 kJ/kg 水分',
+      '一反織り 数百MU'
+    ],
+    related: ['organic-overview', 'wind', 'organic-leather']
+  },
+  'organic-leather': {
+    title: 'なめし系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/なめし系魔法.md',
+    summary: '獣皮・革の加工。革職人・鎧師の主力技能。水魔法（洗浄）・火魔法（燻し）と複合。',
+    highlights: [
+      '対象：新鮮獣皮・なめし革',
+      '脱毛・脱脂・なめし・着色の操作',
+      '水魔法（洗浄）・火魔法（燻し）との複合',
+      '革鎧・靴・鞍・革袋・防具に使用',
+      '魔物皮は高級品、属性耐性を持つことあり',
+      '伝統技法と魔法の併用で職人技が確立'
+    ],
+    numbers: [
+      '一枚なめし 数百〜数千 MU',
+      '魔物革加工は数倍コスト'
+    ],
+    related: ['organic-overview', 'water', 'fire', 'organic-bone']
+  },
+  'organic-bone': {
+    title: '骨細工系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/骨細工系魔法.md',
+    summary: '骨・角・牙・甲殻の成形。武具師・装飾師の技能。魔物の骨は術式石の触媒にもなる。',
+    highlights: [
+      '対象：獣骨・角・牙・魔物甲殻',
+      '切削・成形・研磨・接合の操作',
+      '土魔法複合（骨の無機成分操作）',
+      '武具の柄・飾り・装飾品・護符に使用',
+      '魔物の骨は魔力保持率が高く術式石の触媒にもなる',
+      '希少素材は貴族階級の装飾市場で流通'
+    ],
+    numbers: [
+      '一品成形 数百〜数千 MU',
+      '魔物甲殻は硬度に応じ数倍'
+    ],
+    related: ['organic-overview', 'earth', 'organic-leather']
+  },
+  'organic-apothecary': {
+    title: '薬師系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/薬師系魔法.md',
+    summary: '薬草・毒草・魔物素材の調合。錬薬師の主力技能。感知系・火魔法・水魔法と複合。',
+    highlights: [
+      '対象：薬草・毒草・魔物素材・動物の腑',
+      '感知系と複合（魔力の見極めが要）',
+      '火魔法（煎じ）・水魔法（抽出）と組合せ',
+      'ポーション・毒薬・香料・呪符に使用',
+      '禁域産素材が最高級ライン',
+      '毒の調合と中和は諸刃の技能'
+    ],
+    numbers: [
+      '一般ポーション 数百MU材料費相当',
+      '高級品 数千〜数万 MU',
+      '禁域素材は等級比例'
+    ],
+    related: ['organic-overview', 'perception', 'fire', 'water', 'potion']
+  },
+  'organic-cooking': {
+    title: '調理系魔法',
+    category: '生活魔法・有機',
+    path: '04_生活魔法/有機魔法/調理系魔法.md',
+    summary: '肉・穀物・果実・乳の加工。料理人・保存食職人の技能。火魔法・水魔法と複合。',
+    highlights: [
+      '対象：食材全般（死んだ有機物）',
+      '切断・混合・発酵・保存の操作',
+      '火魔法（加熱）・水魔法（発酵管理）複合',
+      '保存食は水分除去・燻製浸透で長期保存化',
+      '醸造酒・酵母の発酵管理は水魔法が鍵',
+      '王宮料理人は高度な複合技能を持つ'
+    ],
+    numbers: [
+      '加熱コスト：比熱×質量×温度差',
+      '乾燥・水分除去 2260 kJ/kg',
+      '保存食 1食分 数十〜数百 MU'
+    ],
+    related: ['organic-overview', 'fire', 'water', 'organic-apothecary']
+  }
+};
+
+// ============================================================
+// Category Setup
+// ============================================================
+const CATEGORIES = [
+  { name: '基本原則', key: 'principle', color: 'principle', icon: '🌌', desc: '魔法を動かす根本ルール' },
+  { name: '遺伝と属性', key: 'heredity', color: 'heredity', icon: '🧬', desc: '古代5系統と属性の起源' },
+  { name: '魔力の計測', key: 'measure', color: 'measure', icon: '📏', desc: 'MU単位・階層・検査制度' },
+  { name: '術式と魔道具', key: 'device', color: 'device', icon: '⚙️', desc: '術式石と大型魔道具' },
+  { name: '特殊魔法', key: 'special', color: 'special', icon: '✨', desc: '同調魔法と主人公魔法体系' },
+  { name: '生活魔法・無機', key: 'inorg', color: 'inorg', icon: '🔥', desc: '4属性＋強化・感知(無属性魔法)' },
+  { name: '生活魔法・有機', key: 'org', color: 'org', icon: '🌿', desc: '木工・織物・なめし・骨・薬・調理' }
+];
+
+// ============================================================
+// Rendering
+// ============================================================
+function renderSidebar() {
+  const list = document.getElementById('nav-list');
+  let html = '';
+  for (const cat of CATEGORIES) {
+    html += `<h3>${cat.icon} ${cat.name}</h3><ul>`;
+    for (const [id, page] of Object.entries(PAGES)) {
+      if (page.category === cat.name) {
+        html += `<li><a href="#${id}" data-page="${id}" onclick="nav('${id}');return false;">${page.title}</a></li>`;
+      }
+    }
+    html += `</ul>`;
+  }
+  list.innerHTML = html;
+}
+
+function renderHome() {
+  const c = document.getElementById('content');
+  let html = `
+    <article class="page active" data-page="home">
+      <div class="hero">
+        <span class="tag">MAGIC WIKI</span>
+        <h1>魔法システム総合Wiki</h1>
+        <p>ファンタジー小説プロジェクトの魔法関連設定36件を統合。<br>物理準拠（1 MU = 1 kJ）で設計された、創造ではなく「操作・変換」の魔法体系。</p>
+      </div>
+
+      <h2>4柱の公式ポリシー</h2>
+      <div class="pillars">
+        <div class="pillar">
+          <h3>① 魔力分子＋マーキング</h3>
+          <p>大気遍在の魔力分子を、主魔石が個人印で区別して操作する。</p>
+        </div>
+        <div class="pillar">
+          <h3>② 古代5系統遺伝起源</h3>
+          <p>地中・水棲・火山・空中・群体の5系統進化が4属性＋同調の源。</p>
+        </div>
+        <div class="pillar">
+          <h3>③ 副魔石＝情報転写</h3>
+          <p>副魔石は母体に残り、出産時に情報のみ子の主魔石の種へ転写。</p>
+        </div>
+        <div class="pillar">
+          <h3>④ 同調＝主魔石構造</h3>
+          <p>同調は属性ではなく5系統均衡発現による主魔石の特殊構造由来。</p>
+        </div>
+      </div>
+
+      <h2>カテゴリ一覧</h2>
+      <div class="cat-grid">
+  `;
+  for (const cat of CATEGORIES) {
+    const pagesInCat = Object.entries(PAGES).filter(([id, p]) => p.category === cat.name);
+    html += `
+      <div class="cat-card ${cat.color}" onclick="nav('${pagesInCat[0][0]}')">
+        <h3>${cat.icon} ${cat.name}</h3>
+        <p>${cat.desc}</p>
+        <ul>
+          ${pagesInCat.slice(0, 5).map(([id, p]) => `<li>・${p.title}</li>`).join('')}
+          ${pagesInCat.length > 5 ? `<li style="color:var(--muted)">… 他${pagesInCat.length - 5}項目</li>` : ''}
+        </ul>
+      </div>
+    `;
+  }
+  html += `
+      </div>
+
+      <h2>クイック物理換算</h2>
+      <ul class="numbers">
+        <li>1 MU = 1 kJ = 1000 J</li>
+        <li>水1L を 0→100℃ 加熱：約 418 MU</li>
+        <li>水1L を沸騰→蒸発：約 2,260 MU</li>
+        <li>1 kg の石を 10 m 持ち上げ：0.1 MU</li>
+        <li>60 kg の人間を 1 分間飛行：300〜1,000 MU</li>
+        <li>火魔法銃1発：20〜50 MU（焼殺級は1,500〜3,000）</li>
+        <li>氷槍1発：335 MU（融解潜熱由来）</li>
+      </ul>
+
+      <h2>使い方</h2>
+      <ul class="list">
+        <li>左サイドバーから項目を選択、またはトップバーの検索で絞り込み</li>
+        <li>各ページの「関連項目」タグをクリックで関連記事にジャンプ</li>
+        <li>URLの <code>#</code> 以降で直リンク可能（例： <code>#resonance</code>）</li>
+        <li>各ページ下部の「元ファイル」リンクから正本のMarkdownを参照</li>
+      </ul>
+
+      <div class="source-link">
+        全36ファイル収録 / 最終更新 2026-04-21 / 4柱整合確認済み（R5評価）
+      </div>
+    </article>
+  `;
+
+  // Append all page articles
+  for (const [id, page] of Object.entries(PAGES)) {
+    html += renderPage(id, page);
+  }
+  c.innerHTML = html;
+}
+
+function renderPage(id, page) {
+  const relatedHtml = page.related.map(rid => {
+    const rp = PAGES[rid];
+    if (!rp) return `<span style="color:var(--muted);font-size:12px;">${rid}（外部）</span>`;
+    return `<a href="#${rid}" onclick="nav('${rid}');return false;">${rp.title}</a>`;
+  }).join('');
+
+  return `
+    <article class="page" data-page="${id}" data-category="${page.category}" data-search="${(page.title + ' ' + page.summary + ' ' + page.highlights.join(' ') + ' ' + page.numbers.join(' ')).toLowerCase()}">
+      <div class="crumb"><span class="cat">${page.category}</span> ${page.title}</div>
+      <h1>${page.title}</h1>
+      <div class="summary">${page.summary}</div>
+      <h2>要点</h2>
+      <ul class="list">
+        ${page.highlights.map(h => `<li>${h}</li>`).join('')}
+      </ul>
+      <h2>主要数値・コスト</h2>
+      <ul class="numbers">
+        ${page.numbers.map(n => `<li>${n}</li>`).join('')}
+      </ul>
+      <h2>関連項目</h2>
+      <div class="related-chips">${relatedHtml}</div>
+      <div class="source-link">
+        元ファイル: <a href="../${page.path}" target="_blank">${page.path}</a>
+      </div>
+    </article>
+  `;
+}
+
+// ============================================================
+// Navigation
+// ============================================================
+function nav(id) {
+  document.querySelectorAll('main .page').forEach(p => p.classList.remove('active'));
+  const target = document.querySelector(`main .page[data-page="${id}"]`);
+  if (target) {
+    target.classList.add('active');
+    document.getElementById('content').scrollTop = 0;
+  }
+  document.querySelectorAll('aside a').forEach(a => a.classList.remove('active'));
+  const navlink = document.querySelector(`aside a[data-page="${id}"]`);
+  if (navlink) navlink.classList.add('active');
+  if (history.pushState) {
+    history.pushState(null, '', '#' + id);
+  }
+}
+
+function handleHash() {
+  const hash = location.hash.replace('#', '') || 'home';
+  if (hash === 'home' || PAGES[hash]) {
+    nav(hash);
+  }
+}
+
+// ============================================================
+// Search
+// ============================================================
+function doSearch() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const links = document.querySelectorAll('aside li a[data-page]');
+  if (!q) {
+    links.forEach(a => a.classList.remove('hidden'));
+    return;
+  }
+  links.forEach(a => {
+    const id = a.dataset.page;
+    const page = PAGES[id];
+    if (!page) return;
+    const hay = (page.title + ' ' + page.summary + ' ' + page.highlights.join(' ') + ' ' + page.numbers.join(' ') + ' ' + page.category).toLowerCase();
+    if (hay.includes(q)) {
+      a.classList.remove('hidden');
+    } else {
+      a.classList.add('hidden');
+    }
+  });
+}
+
+// ============================================================
+// Init
+// ============================================================
+renderSidebar();
+renderHome();
+handleHash();
+window.addEventListener('hashchange', handleHash);
+document.getElementById('search').addEventListener('input', doSearch);
+</script>
+
+</body>
+</html>
